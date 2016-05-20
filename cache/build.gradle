@@ -1,0 +1,32 @@
+repositories {
+    jcenter()
+    maven { url 'http://repository.beapp.fr/libs-release-local' }
+}
+
+apply plugin: 'com.android.library'
+android {
+    compileSdkVersion 24
+    buildToolsVersion "24.0.2"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 24
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    // QA
+    compile 'fr.beapp.logger:logger:1.0'
+
+    // Rx
+    compile 'io.reactivex:rxjava:1.2.1'
+
+    // Snappy DB
+    compile 'com.snappydb:snappydb-lib:0.5.2'
+
+//    provided 'com.jakewharton.threetenabp:threetenabp:1.0.4'
+
+    testCompile 'junit:junit:4.12'
+}
