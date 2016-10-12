@@ -30,7 +30,7 @@ public class InMemoryStorage implements Storage {
 	}
 
 	@Override
-	public void del(String key) {
+	public void delete(String key) {
 		cache.remove(key);
 	}
 

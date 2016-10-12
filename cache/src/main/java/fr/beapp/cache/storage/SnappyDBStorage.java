@@ -11,6 +11,11 @@ import java.io.Serializable;
 
 import fr.beapp.logger.Logger;
 
+/**
+ * A {@link Storage} implementation based on <a href="https://github.com/nhachicha/SnappyDB">SnappyDB</a>.
+ * <br/>
+ * This library relies on <a href="https://github.com/EsotericSoftware/kryo">Kryo</a> in order to provide fast serialization.
+ */
 public class SnappyDBStorage implements Storage {
 
 	protected final Context context;
@@ -56,6 +61,14 @@ public class SnappyDBStorage implements Storage {
 		return db;
 	}
 
+	/**
+	 * Open a SNappyDB instance with the given path and name
+	 *
+	 * @param path         The path where the database will bestored
+	 * @param databaseName The database name to use
+	 * @return A {@link DB} instance
+	 * @throws Exception
+	 */
 	protected DB openDb(String path, String databaseName) throws Exception {
 		return new SnappyDB.Builder(context)
 				.directory(path)
@@ -66,6 +79,9 @@ public class SnappyDBStorage implements Storage {
 				.build();
 	}
 
+	/**
+	 * Properly close SnappyDB instance
+	 */
 	public synchronized void closeDb() {
 		if (db != null) {
 			try {
@@ -110,7 +126,7 @@ public class SnappyDBStorage implements Storage {
 	}
 
 	@Override
-	public synchronized void del(String key) {
+	public synchronized void delete(String key) {
 		try {
 			getDb().del(key);
 		} catch (SnappydbException e) {
@@ -133,7 +149,7 @@ public class SnappyDBStorage implements Storage {
 			}
 		} catch (SnappydbException e) {
 			Logger.warn("Data with key %s couldn't be retrieved from cache. Deleting it", e, key);
-			del(key);
+			delete(key);
 		}
 		return defaultValue;
 	}
