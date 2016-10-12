@@ -3,6 +3,7 @@ package fr.beapp.cache;
 import org.junit.Before;
 import org.junit.Test;
 
+import fr.beapp.cache.internal.CacheWrapper;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 

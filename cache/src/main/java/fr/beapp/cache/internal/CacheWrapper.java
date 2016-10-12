@@ -1,4 +1,4 @@
-package fr.beapp.cache;
+package fr.beapp.cache.internal;
 
 import java.io.Serializable;
 

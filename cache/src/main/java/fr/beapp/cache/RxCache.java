@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import fr.beapp.cache.internal.CacheWrapper;
 import fr.beapp.cache.storage.SnappyDBStorage;
 import fr.beapp.cache.storage.Storage;
 import rx.Observable;
