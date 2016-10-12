@@ -211,7 +211,7 @@ public class RxCache {
 							.filter(new Func1<CacheWrapper<T>, Boolean>() {
 								@Override
 								public Boolean call(CacheWrapper<T> cacheWrapper) {
-									return !isExpired(cacheWrapper.getCachedDate());
+									return isValid(cacheWrapper.getCachedDate());
 								}
 							})
 							.map(new Func1<CacheWrapper<T>, T>() {
@@ -262,8 +262,8 @@ public class RxCache {
 			return asyncObservable;
 		}
 
-		protected boolean isExpired(long cacheDate) {
-			return System.currentTimeMillis() > cacheDate + TimeUnit.MILLISECONDS.convert(ttlValue, ttlTimeUnit);
+		protected boolean isValid(long cacheDate) {
+			return keepExpiredCache || System.currentTimeMillis() < cacheDate + TimeUnit.MILLISECONDS.convert(ttlValue, ttlTimeUnit);
 		}
 	}
 }
