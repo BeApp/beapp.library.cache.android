@@ -31,6 +31,18 @@ public class RxCache {
 		this.storage = storage;
 	}
 
+	public Storage getStorage() {
+		return storage;
+	}
+
+	public long getDefaultTTLValue() {
+		return ttlValue;
+	}
+
+	public TimeUnit getDefaultTTLTimeUnit() {
+		return ttlTimeUnit;
+	}
+
 	public RxCache withTTL(long value, @NonNull TimeUnit timeUnit) {
 		this.ttlValue = value;
 		this.ttlTimeUnit = timeUnit;
@@ -94,7 +106,7 @@ public class RxCache {
 		return System.currentTimeMillis() > cacheDate + TimeUnit.MILLISECONDS.convert(ttlValue, ttlTimeUnit);
 	}
 
-	private <T> Observable<T> getStrategyObservable(final CacheStrategy strategy, final Observable<CacheWrapper<T>> cacheObservable, final Observable<T> asyncObservable) {
+	protected <T> Observable<T> getStrategyObservable(final CacheStrategy strategy, final Observable<CacheWrapper<T>> cacheObservable, final Observable<T> asyncObservable) {
 		switch (strategy) {
 			case CACHE_THEN_ASYNC:
 				return cacheObservable
