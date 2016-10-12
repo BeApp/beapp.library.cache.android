@@ -42,7 +42,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_cacheThenAsync_noCache_asyncOk() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.CACHE_THEN_ASYNC, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.CACHE_THEN_ASYNC)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();
@@ -53,7 +56,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_cacheThenAsync_noCache_asyncError() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.CACHE_THEN_ASYNC, Observable.error(asyncException)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.CACHE_THEN_ASYNC)
+				.withAsync(Observable.error(asyncException))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertError(asyncException);
@@ -63,7 +69,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_cacheThenAsync_cachedValue_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.CACHE_THEN_ASYNC, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.CACHE_THEN_ASYNC)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();
@@ -74,7 +83,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_cacheThenAsync_cachedValue_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.CACHE_THEN_ASYNC, Observable.error(asyncException)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.CACHE_THEN_ASYNC)
+				.withAsync(Observable.error(asyncException))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertError(asyncException);
@@ -87,7 +99,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_asyncIfNeeded_noCache_asyncOk() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.ASYNC_IF_NEEDED, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.ASYNC_IF_NEEDED)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();
@@ -98,7 +113,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_asyncIfNeeded_noCache_asyncError() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.ASYNC_IF_NEEDED, Observable.error(asyncException)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.ASYNC_IF_NEEDED)
+				.withAsync(Observable.error(asyncException))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertError(asyncException);
@@ -108,7 +126,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_asyncIfNeeded_expiredCache_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(System.currentTimeMillis() - MINUTES_60, CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.ASYNC_IF_NEEDED, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.ASYNC_IF_NEEDED)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();
@@ -119,7 +140,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_asyncIfNeeded_expiredCache_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(System.currentTimeMillis() - MINUTES_60, CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.ASYNC_IF_NEEDED, Observable.error(asyncException)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.ASYNC_IF_NEEDED)
+				.withAsync(Observable.error(asyncException))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();    // TODO Async in error but we have expired value from cache. Should we really swallow this exception ?
@@ -130,7 +154,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_asyncIfNeeded_cachedValue_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.ASYNC_IF_NEEDED, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.ASYNC_IF_NEEDED)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();
@@ -141,7 +168,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_asyncIfNeeded_cachedValue_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.ASYNC_IF_NEEDED, Observable.error(asyncException)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.ASYNC_IF_NEEDED)
+				.withAsync(Observable.error(asyncException))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();    // TODO Should we really swallow this exception ?
@@ -154,7 +184,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_justCache_noCache_asyncOk() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.JUST_CACHE, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.JUST_CACHE)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();
@@ -164,7 +197,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_justCache_noCache_asyncError() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.JUST_CACHE, Observable.error(asyncException)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.JUST_CACHE)
+				.withAsync(Observable.error(asyncException))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();    // Ok, because Async shouldn't be called with this strategy
@@ -174,7 +210,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_justCache_cachedValue_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.JUST_CACHE, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.JUST_CACHE)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();
@@ -185,7 +224,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_justCache_cachedValue_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.JUST_CACHE, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.JUST_CACHE)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();    // Ok, because Async shouldn't be called with this strategy
@@ -198,7 +240,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_noCache_noCache_asyncOk() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.NO_CACHE, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.NO_CACHE)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();
@@ -209,7 +254,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_noCache_noCache_asyncError() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.NO_CACHE, Observable.error(asyncException)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.NO_CACHE)
+				.withAsync(Observable.error(asyncException))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertError(asyncException);
@@ -219,7 +267,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_noCache_cachedValue_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.NO_CACHE, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.NO_CACHE)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();
@@ -230,7 +281,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_noCache_cachedValue_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.NO_CACHE, Observable.error(asyncException)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.NO_CACHE)
+				.withAsync(Observable.error(asyncException))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertError(asyncException);
@@ -242,7 +296,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_noCacheButSaved_noCache_asyncOk() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.NO_CACHE_BUT_SAVED, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.NO_CACHE_BUT_SAVED)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();
@@ -253,7 +310,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_noCacheButSaved_noCache_asyncError() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.NO_CACHE_BUT_SAVED, Observable.error(asyncException)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.NO_CACHE_BUT_SAVED)
+				.withAsync(Observable.error(asyncException))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertError(asyncException);
@@ -263,7 +323,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_noCacheButSaved_cachedValue_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.NO_CACHE_BUT_SAVED, Observable.just(ASYNC_OBJECT)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.NO_CACHE_BUT_SAVED)
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();
@@ -274,7 +337,10 @@ public class RxCacheTest {
 	@Test
 	public void testExecuteRx_noCacheButSaved_cachedValue_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
-		rxCache.executeRx("key", CacheStrategy.NO_CACHE_BUT_SAVED, Observable.error(asyncException)).subscribe(testSubscriber);
+		rxCache.fromKey("key")
+				.withStrategy(CacheStrategy.NO_CACHE_BUT_SAVED)
+				.withAsync(Observable.error(asyncException))
+				.toObservable().subscribe(testSubscriber);
 
 		testSubscriber.awaitTerminalEvent();
 		testSubscriber.assertNoErrors();    // TODO Async in error but we have value from cache. Should we really swallow this exception ?
