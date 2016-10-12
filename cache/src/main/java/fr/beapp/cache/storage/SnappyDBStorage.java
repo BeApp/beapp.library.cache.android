@@ -13,8 +13,8 @@ import fr.beapp.logger.Logger;
 
 public class SnappyDBStorage implements Storage {
 
-	private final Context context;
-	private DB db;
+	protected final Context context;
+	protected DB db;
 
 	public SnappyDBStorage(Context context) {
 		this.context = context;
@@ -32,13 +32,7 @@ public class SnappyDBStorage implements Storage {
 			try {
 				Logger.info("Initializing SnappyDB database %s at %s", databaseName, path);
 
-				db = new SnappyDB.Builder(context)
-						.directory(path)
-						.name(databaseName)
-//						.registerSerializers(DateTime.class, new JodaDateTimeSerializer())
-//						.registerSerializers(LocalDate.class, new JodaLocalDateSerializer())
-//						.registerSerializers(PeriodType.class, new JodaPeriodTypeSerializer())
-						.build();
+				db = openDb(path, databaseName);
 			} catch (Exception e) {
 				Logger.error("Can't open cache database. No data will be cached", e);
 
@@ -60,6 +54,16 @@ public class SnappyDBStorage implements Storage {
 			}
 		}
 		return db;
+	}
+
+	protected DB openDb(String path, String databaseName) throws Exception {
+		return new SnappyDB.Builder(context)
+				.directory(path)
+				.name(databaseName)
+//						.registerSerializers(DateTime.class, new JodaDateTimeSerializer())
+//						.registerSerializers(LocalDate.class, new JodaLocalDateSerializer())
+//						.registerSerializers(PeriodType.class, new JodaPeriodTypeSerializer())
+				.build();
 	}
 
 	public synchronized void closeDb() {
