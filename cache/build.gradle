@@ -17,16 +17,31 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    // QA
     compile 'fr.beapp.logger:logger:1.0'
-
-    // Rx
     compile 'io.reactivex:rxjava:1.2.1'
-
-    // Snappy DB
     compile 'com.snappydb:snappydb-lib:0.5.2'
-
-//    provided 'com.jakewharton.threetenabp:threetenabp:1.0.4'
 
     testCompile 'junit:junit:4.12'
 }
+
+ext {
+    libraryName = 'Beapp Cache'
+    libraryGroupId = 'fr.beapp.cache'
+    libraryArtifactId = 'cache'
+    libraryVersion = '1.0-SNAPSHOT'
+    libraryPackaging = 'aar'
+
+    libraryDescription = 'A cache library based on RxJava'
+
+    siteUrl = 'https://bitbucket.org/beappers/beapp.cache.andro'
+    gitUrl = 'git@bitbucket.org:beappers/beapp.cache.andro.git'
+
+    developerId = 'dvilleneuve'
+    developerName = 'Damien Villeneuve'
+    developerEmail = 'd.villeneuve@beapp.fr'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+apply from: 'https://bitbucket.org/beappers/beapp.gradle/raw/master/publish-library.gradle'
