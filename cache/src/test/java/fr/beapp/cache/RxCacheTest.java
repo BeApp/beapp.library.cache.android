@@ -1,9 +1,12 @@
 package fr.beapp.cache;
 
+import android.support.annotation.NonNull;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import fr.beapp.cache.internal.CacheWrapper;
+import fr.beapp.cache.strategy.CacheStrategy;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
@@ -43,7 +46,7 @@ public class RxCacheTest {
 	public void testExecuteRx_cacheThenAsync_noCache_asyncOk() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.CACHE_THEN_ASYNC)
+				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -57,7 +60,7 @@ public class RxCacheTest {
 	public void testExecuteRx_cacheThenAsync_noCache_asyncError() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.CACHE_THEN_ASYNC)
+				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Observable.error(asyncException))
 				.toObservable().subscribe(testSubscriber);
 
@@ -70,7 +73,7 @@ public class RxCacheTest {
 	public void testExecuteRx_cacheThenAsync_cachedValue_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.CACHE_THEN_ASYNC)
+				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -84,7 +87,7 @@ public class RxCacheTest {
 	public void testExecuteRx_cacheThenAsync_cachedValue_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.CACHE_THEN_ASYNC)
+				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Observable.error(asyncException))
 				.toObservable().subscribe(testSubscriber);
 
@@ -94,13 +97,13 @@ public class RxCacheTest {
 		testSubscriber.assertValues(CACHE_OBJECT);
 	}
 
-	// CACHE_OR_ASYNC
+	// cacheOrAsync()
 
 	@Test
 	public void testExecuteRx_cacheOrAsync_noCache_asyncOk() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.CACHE_OR_ASYNC)
+				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -114,7 +117,7 @@ public class RxCacheTest {
 	public void testExecuteRx_cacheOrAsync_noCache_asyncError() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.CACHE_OR_ASYNC)
+				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Observable.error(asyncException))
 				.toObservable().subscribe(testSubscriber);
 
@@ -127,7 +130,7 @@ public class RxCacheTest {
 	public void testExecuteRx_cacheOrAsync_expiredCache_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(System.currentTimeMillis() - MINUTES_60, CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.CACHE_OR_ASYNC)
+				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -141,7 +144,7 @@ public class RxCacheTest {
 	public void testExecuteRx_cacheOrAsync_expiredCache_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(System.currentTimeMillis() - MINUTES_60, CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.CACHE_OR_ASYNC)
+				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Observable.error(asyncException))
 				.toObservable().subscribe(testSubscriber);
 
@@ -155,7 +158,7 @@ public class RxCacheTest {
 	public void testExecuteRx_cacheOrAsync_cachedValue_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.CACHE_OR_ASYNC)
+				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -169,7 +172,7 @@ public class RxCacheTest {
 	public void testExecuteRx_cacheOrAsync_cachedValue_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.CACHE_OR_ASYNC)
+				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Observable.error(asyncException))
 				.toObservable().subscribe(testSubscriber);
 
@@ -179,13 +182,13 @@ public class RxCacheTest {
 		testSubscriber.assertValues(CACHE_OBJECT);
 	}
 
-	// JUST_CACHE
+	// justCache()
 
 	@Test
 	public void testExecuteRx_justCache_noCache_asyncOk() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.JUST_CACHE)
+				.withStrategy(CacheStrategy.justCache())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -198,7 +201,7 @@ public class RxCacheTest {
 	public void testExecuteRx_justCache_noCache_asyncError() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.JUST_CACHE)
+				.withStrategy(CacheStrategy.justCache())
 				.withAsync(Observable.error(asyncException))
 				.toObservable().subscribe(testSubscriber);
 
@@ -211,7 +214,7 @@ public class RxCacheTest {
 	public void testExecuteRx_justCache_cachedValue_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.JUST_CACHE)
+				.withStrategy(CacheStrategy.justCache())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -225,7 +228,7 @@ public class RxCacheTest {
 	public void testExecuteRx_justCache_cachedValue_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.JUST_CACHE)
+				.withStrategy(CacheStrategy.justCache())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -235,13 +238,13 @@ public class RxCacheTest {
 		testSubscriber.assertValue(CACHE_OBJECT);
 	}
 
-	// NO_CACHE
+	// noCache()
 
 	@Test
 	public void testExecuteRx_noCache_noCache_asyncOk() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.NO_CACHE)
+				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -255,7 +258,7 @@ public class RxCacheTest {
 	public void testExecuteRx_noCache_noCache_asyncError() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.NO_CACHE)
+				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Observable.error(asyncException))
 				.toObservable().subscribe(testSubscriber);
 
@@ -268,7 +271,7 @@ public class RxCacheTest {
 	public void testExecuteRx_noCache_cachedValue_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.NO_CACHE)
+				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -282,7 +285,7 @@ public class RxCacheTest {
 	public void testExecuteRx_noCache_cachedValue_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.NO_CACHE)
+				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Observable.error(asyncException))
 				.toObservable().subscribe(testSubscriber);
 
@@ -291,13 +294,13 @@ public class RxCacheTest {
 		testSubscriber.assertNoValues();
 	}
 
-	// ASYNC_OR_CACHE
+	// asyncOrCache()
 
 	@Test
 	public void testExecuteRx_asyncOrCache_noCache_asyncOk() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.ASYNC_OR_CACHE)
+				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -311,7 +314,7 @@ public class RxCacheTest {
 	public void testExecuteRx_asyncOrCache_noCache_asyncError() throws Exception {
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.ASYNC_OR_CACHE)
+				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Observable.error(asyncException))
 				.toObservable().subscribe(testSubscriber);
 
@@ -324,7 +327,7 @@ public class RxCacheTest {
 	public void testExecuteRx_asyncOrCache_cachedValue_asyncOk() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.ASYNC_OR_CACHE)
+				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Observable.just(ASYNC_OBJECT))
 				.toObservable().subscribe(testSubscriber);
 
@@ -338,7 +341,7 @@ public class RxCacheTest {
 	public void testExecuteRx_asyncOrCache_cachedValue_asyncError() throws Exception {
 		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(CacheStrategy.ASYNC_OR_CACHE)
+				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Observable.error(asyncException))
 				.toObservable().subscribe(testSubscriber);
 
@@ -348,5 +351,33 @@ public class RxCacheTest {
 		testSubscriber.assertValue(CACHE_OBJECT);
 	}
 
+	// custom
+
+	@Test
+	public void testExecuteRx_custom_noCache_asyncOk() throws Exception {
+		final Object customObject = new Object() {
+			@Override
+			public String toString() {
+				return "Custom Object";
+			}
+		};
+
+		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		rxCache.fromKey("key")
+				.withStrategy(new CacheStrategy() {
+					@Override
+					@SuppressWarnings("unchecked")
+					public <T> Observable<CacheWrapper<T>> getStrategyObservable(@NonNull Observable<CacheWrapper<T>> cacheObservable, @NonNull Observable<CacheWrapper<T>> asyncObservable) {
+						return Observable.just(new CacheWrapper<>((T) customObject));
+					}
+				})
+				.withAsync(Observable.just(ASYNC_OBJECT))
+				.toObservable().subscribe(testSubscriber);
+
+		testSubscriber.awaitTerminalEvent();
+		testSubscriber.assertNoErrors();
+		testSubscriber.assertValueCount(1);
+		testSubscriber.assertValue(customObject);
+	}
 
 }

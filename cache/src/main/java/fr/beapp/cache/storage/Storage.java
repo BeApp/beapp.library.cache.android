@@ -1,5 +1,8 @@
 package fr.beapp.cache.storage;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.Serializable;
 
 /**
@@ -17,14 +20,14 @@ public interface Storage {
 	 *
 	 * @param keyPrefix The key prefix to search
 	 */
-	void clear(String keyPrefix);
+	void clear(@NonNull String keyPrefix);
 
 	/**
 	 * Remove a specific data from cache based on the given key
 	 *
 	 * @param key The key to use to remove data
 	 */
-	void delete(String key);
+	void delete(@NonNull String key);
 
 	/**
 	 * Add a new data in cache
@@ -32,7 +35,7 @@ public interface Storage {
 	 * @param key   The key to use to store this data
 	 * @param value The data to add in cache
 	 */
-	void put(String key, Serializable value);
+	void put(@NonNull String key, @Nullable Serializable value);
 
 	/**
 	 * Retrieve a data from cache based on the given key
@@ -41,7 +44,8 @@ public interface Storage {
 	 * @param clazz The class on which the data must be casted
 	 * @return Actual data if present, <code>null</code> otherwise
 	 */
-	<T extends Serializable> T get(String key, Class<T> clazz);
+	@Nullable
+	<T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz);
 
 	/**
 	 * Retrieve a data from cache based on the given key. If nothing was stored in this key, return the given defualt value
@@ -51,7 +55,8 @@ public interface Storage {
 	 * @param defaultValue The default value to return in case no data was stored with the given key
 	 * @return Actual data if present, <code>defaultValue</code> otherwise
 	 */
-	<T extends Serializable> T get(String key, Class<T> clazz, T defaultValue);
+	@Nullable
+	<T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz, @Nullable T defaultValue);
 
 	/**
 	 * Check if a data was stored with the given key
@@ -59,6 +64,6 @@ public interface Storage {
 	 * @param key The key to check
 	 * @return <code>true</code> if a data was stored with this key (even if it's null), <code>false</code> otherwise
 	 */
-	boolean exists(String key);
+	boolean exists(@NonNull String key);
 
 }

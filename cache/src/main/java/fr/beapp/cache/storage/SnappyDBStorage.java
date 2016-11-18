@@ -1,6 +1,8 @@
 package fr.beapp.cache.storage;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.snappydb.DB;
 import com.snappydb.SnappyDB;
@@ -21,7 +23,7 @@ public class SnappyDBStorage implements Storage {
 	protected final Context context;
 	protected DB db;
 
-	public SnappyDBStorage(Context context) {
+	public SnappyDBStorage(@NonNull Context context) {
 		this.context = context;
 	}
 
@@ -69,7 +71,7 @@ public class SnappyDBStorage implements Storage {
 	 * @return A {@link DB} instance
 	 * @throws Exception
 	 */
-	protected DB openDb(String path, String databaseName) throws Exception {
+	protected DB openDb(@NonNull String path, @NonNull String databaseName) throws Exception {
 		return new SnappyDB.Builder(context)
 				.directory(path)
 				.name(databaseName)
@@ -105,7 +107,7 @@ public class SnappyDBStorage implements Storage {
 	}
 
 	@Override
-	public synchronized void clear(String keyPrefix) {
+	public synchronized void clear(@NonNull String keyPrefix) {
 		try {
 			String[] keys = getDb().findKeys(keyPrefix);
 			for (String key : keys) {
@@ -117,7 +119,7 @@ public class SnappyDBStorage implements Storage {
 	}
 
 	@Override
-	public synchronized void put(String key, Serializable value) {
+	public synchronized void put(@NonNull String key, @Nullable Serializable value) {
 		try {
 			getDb().put(key, value);
 		} catch (SnappydbException e) {
@@ -126,7 +128,7 @@ public class SnappyDBStorage implements Storage {
 	}
 
 	@Override
-	public synchronized void delete(String key) {
+	public synchronized void delete(@NonNull String key) {
 		try {
 			getDb().del(key);
 		} catch (SnappydbException e) {
@@ -134,13 +136,15 @@ public class SnappyDBStorage implements Storage {
 		}
 	}
 
+	@Nullable
 	@Override
-	public synchronized <T extends Serializable> T get(String key, Class<T> clazz) {
+	public synchronized <T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz) {
 		return get(key, clazz, null);
 	}
 
+	@Nullable
 	@Override
-	public synchronized <T extends Serializable> T get(String key, Class<T> clazz, T defaultValue) {
+	public synchronized <T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz, @Nullable T defaultValue) {
 		try {
 			if (getDb().exists(key)) {
 				return getDb().get(key, clazz);
@@ -155,7 +159,7 @@ public class SnappyDBStorage implements Storage {
 	}
 
 	@Override
-	public synchronized boolean exists(String key) {
+	public synchronized boolean exists(@NonNull String key) {
 		try {
 			return getDb().exists(key);
 		} catch (SnappydbException e) {

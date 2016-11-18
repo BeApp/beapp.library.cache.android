@@ -2,12 +2,14 @@ package fr.beapp.cache;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
 import fr.beapp.cache.internal.CacheWrapper;
 import fr.beapp.cache.storage.SnappyDBStorage;
 import fr.beapp.cache.storage.Storage;
+import fr.beapp.cache.strategy.CacheStrategy;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action1;
@@ -31,7 +33,7 @@ public class RxCache {
 	 *
 	 * @param context The app's context
 	 */
-	public RxCache(Context context) {
+	public RxCache(@NonNull Context context) {
 		this(new SnappyDBStorage(context));
 	}
 
@@ -40,7 +42,7 @@ public class RxCache {
 	 *
 	 * @param storage The implementation to use to store data
 	 */
-	public RxCache(Storage storage) {
+	public RxCache(@NonNull Storage storage) {
 		this.storage = storage;
 	}
 
@@ -78,7 +80,7 @@ public class RxCache {
 	 * @param args The arguments to inject in the given key pattern
 	 * @return A builder to prepare cache resolution
 	 */
-	public <T> StrategyBuilder<T> fromKey(String key, Object... args) {
+	public <T> StrategyBuilder<T> fromKey(@NonNull String key, Object... args) {
 		return new StrategyBuilder<>(this, key, args);
 	}
 
@@ -90,11 +92,11 @@ public class RxCache {
 		protected long ttlValue;
 		protected TimeUnit ttlTimeUnit;
 		protected String sessionName;
-		protected CacheStrategy cacheStrategy = CacheStrategy.CACHE_OR_ASYNC;
+		protected CacheStrategy cacheStrategy = null;
 		protected boolean keepExpiredCache = false;
 		protected Observable<T> asyncObservable = Observable.empty();
 
-		public StrategyBuilder(RxCache rxCache, final String key, Object... args) {
+		public StrategyBuilder(@NonNull RxCache rxCache, @NonNull final String key, Object... args) {
 			this.key = key;
 			this.args = args;
 			this.storage = rxCache.getStorage();
@@ -106,7 +108,7 @@ public class RxCache {
 		/**
 		 * Apply the strategy to use
 		 */
-		public StrategyBuilder<T> withStrategy(CacheStrategy cacheStrategy) {
+		public StrategyBuilder<T> withStrategy(@NonNull CacheStrategy cacheStrategy) {
 			this.cacheStrategy = cacheStrategy;
 			return this;
 		}
@@ -114,7 +116,7 @@ public class RxCache {
 		/**
 		 * Apply the TTL (Time-To-Live) on the cached data. If data creation date exceeds this TTL, it will be considered expired
 		 */
-		public StrategyBuilder<T> withTTL(long value, TimeUnit timeUnit) {
+		public StrategyBuilder<T> withTTL(long value, @NonNull TimeUnit timeUnit) {
 			this.ttlValue = value;
 			this.ttlTimeUnit = timeUnit;
 			return this;
@@ -123,7 +125,7 @@ public class RxCache {
 		/**
 		 * The session to use with the key. This allows us to isolate data from different sessions
 		 */
-		public StrategyBuilder<T> withSession(String sessionName) {
+		public StrategyBuilder<T> withSession(@Nullable String sessionName) {
 			this.sessionName = sessionName;
 			return this;
 		}
@@ -131,7 +133,10 @@ public class RxCache {
 		/**
 		 * The {@link Observable} to use for async operations.
 		 */
-		public StrategyBuilder<T> withAsync(Observable<T> asyncObservable) {
+		public StrategyBuilder<T> withAsync(@Nullable Observable<T> asyncObservable) {
+			if (asyncObservable == null) {
+				asyncObservable = Observable.empty();
+			}
 			this.asyncObservable = asyncObservable;
 			return this;
 		}
@@ -158,19 +163,21 @@ public class RxCache {
 		public Observable<T> toObservable() {
 			final String prependedKey = sessionName != null ? sessionName + key : key;
 
-			final Observable<T> asyncObservableCaching = asyncObservable.compose(new Observable.Transformer<T, T>() {
-				@Override
-				public Observable<T> call(Observable<T> observable) {
-					return observable.doOnNext(new Action1<T>() {
+			final Observable<CacheWrapper<T>> asyncObservableCaching = asyncObservable
+					.map(new Func1<T, CacheWrapper<T>>() {
 						@Override
-						public void call(T value) {
+						public CacheWrapper<T> call(T value) {
+							return new CacheWrapper<>(value);
+						}
+					})
+					.doOnNext(new Action1<CacheWrapper<T>>() {
+						@Override
+						public void call(CacheWrapper<T> value) {
 							if (value != null) {
-								storage.put(prependedKey, new CacheWrapper<>(value));
+								storage.put(prependedKey, value);
 							}
 						}
 					});
-				}
-			});
 
 			final Observable<CacheWrapper<T>> cacheObservable = Observable.create(new Observable.OnSubscribe<CacheWrapper<T>>() {
 				@Override
@@ -188,82 +195,19 @@ public class RxCache {
 				}
 			});
 
-			return getStrategyObservable(cacheStrategy, cacheObservable, asyncObservableCaching)
-					.subscribeOn(Schedulers.io());
-		}
+			if (cacheStrategy == null) {
+				cacheStrategy = CacheStrategy.cacheOrAsync(keepExpiredCache, ttlValue, ttlTimeUnit);
+			}
 
-		/**
-		 * Convert the given {@link CacheStrategy} to an {@link Observable} according to the rules to apply
-		 */
-		protected Observable<T> getStrategyObservable(final CacheStrategy strategy, final Observable<CacheWrapper<T>> cacheObservable, final Observable<T> asyncObservable) {
-			switch (strategy) {
-				case CACHE_THEN_ASYNC:
-					return cacheObservable
-							.map(new Func1<CacheWrapper<T>, T>() {
-								@Override
-								public T call(CacheWrapper<T> cacheWrapper) {
-									return cacheWrapper.getData();
-								}
-							})
-							.concatWith(asyncObservable);
-				case CACHE_OR_ASYNC:
-					return cacheObservable
-							.filter(new Func1<CacheWrapper<T>, Boolean>() {
-								@Override
-								public Boolean call(CacheWrapper<T> cacheWrapper) {
-									return isValid(cacheWrapper.getCachedDate());
-								}
-							})
-							.map(new Func1<CacheWrapper<T>, T>() {
-								@Override
-								public T call(CacheWrapper<T> cacheWrapper) {
-									return cacheWrapper.getData();
-								}
-							})
-							.switchIfEmpty(asyncObservable
-									.onErrorResumeNext(new Func1<Throwable, Observable<T>>() {
-										@Override
-										public Observable<T> call(Throwable throwable) {
-											return cacheObservable
-													.map(new Func1<CacheWrapper<T>, T>() {
-														@Override
-														public T call(CacheWrapper<T> cacheWrapper) {
-															return cacheWrapper.getData();
-														}
-													})
-													.switchIfEmpty(Observable.<T>error(throwable));
-										}
-									}));
-				case JUST_CACHE:
-					return cacheObservable
-							.map(new Func1<CacheWrapper<T>, T>() {
-								@Override
-								public T call(CacheWrapper<T> cacheWrapper) {
-									return cacheWrapper.getData();
-								}
-							});
-				case NO_CACHE:
-					return asyncObservable;
-				case ASYNC_OR_CACHE:
-					return asyncObservable.onErrorResumeNext(new Func1<Throwable, Observable<T>>() {
+			return cacheStrategy.getStrategyObservable(cacheObservable, asyncObservableCaching)
+					.subscribeOn(Schedulers.io())
+					.map(new Func1<CacheWrapper<T>, T>() {
 						@Override
-						public Observable<T> call(Throwable throwable) {
-							return cacheObservable
-									.map(new Func1<CacheWrapper<T>, T>() {
-										@Override
-										public T call(CacheWrapper<T> cacheWrapper) {
-											return cacheWrapper.getData();
-										}
-									})
-									.switchIfEmpty(Observable.<T>error(throwable));
+						public T call(CacheWrapper<T> cacheWrapper) {
+							return cacheWrapper.getData();
 						}
 					});
-			}
-			return asyncObservable;
 		}
 
-		protected boolean isValid(long cacheDate) {
-			return keepExpiredCache || System.currentTimeMillis() < cacheDate + TimeUnit.MILLISECONDS.convert(ttlValue, ttlTimeUnit);
-		}
 	}
 }
