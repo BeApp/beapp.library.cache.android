@@ -1,5 +1,8 @@
 package fr.beapp.cache;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +19,7 @@ public class InMemoryStorage implements Storage {
 	}
 
 	@Override
-	public void clear(String keyPrefix) {
+	public void clear(@NonNull String keyPrefix) {
 		for (String key : cache.keySet()) {
 			if (key.startsWith(keyPrefix)) {
 				cache.remove(key);
@@ -25,23 +28,25 @@ public class InMemoryStorage implements Storage {
 	}
 
 	@Override
-	public void put(String key, Serializable value) {
+	public void put(@NonNull String key, @Nullable Serializable value) {
 		cache.put(key, value);
 	}
 
 	@Override
-	public void delete(String key) {
+	public void delete(@NonNull String key) {
 		cache.remove(key);
 	}
 
+	@Nullable
 	@Override
-	public <T extends Serializable> T get(String key, Class<T> clazz) {
+	public <T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz) {
 		return get(key, clazz, null);
 	}
 
+	@Nullable
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends Serializable> T get(String key, Class<T> clazz, T defaultValue) {
+	public <T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz, @Nullable T defaultValue) {
 		if (cache.containsKey(key)) {
 			return (T) cache.get(key);
 		}
@@ -49,7 +54,7 @@ public class InMemoryStorage implements Storage {
 	}
 
 	@Override
-	public boolean exists(String key) {
+	public boolean exists(@NonNull String key) {
 		return key.contains(key);
 	}
 
