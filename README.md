@@ -4,7 +4,7 @@ This library provides a cache mechanism relying on [RxJava](https://github.com/R
 
 Two steps are needed :
 
-1. Declare an instance of RxCache with a storage implementation
+1. Declare an instance of RxCache with a storage implementation (default is SnappyDB)
 2. Call `fromKey` method from RxCache instance and configure the strategy for this call
  
  
@@ -32,6 +32,6 @@ repositories {
 }
 
 dependencies {
-    compile 'fr.beapp.cache:cache:1.0'
+    compile 'fr.beapp.cache:cache:<version>'
 }
 ```
