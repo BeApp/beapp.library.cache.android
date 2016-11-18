@@ -162,19 +162,21 @@ public class RxCache {
 		public Observable<T> toObservable() {
 			final String prependedKey = sessionName != null ? sessionName + key : key;
 
-			final Observable<T> asyncObservableCaching = asyncObservable.compose(new Observable.Transformer<T, T>() {
-				@Override
-				public Observable<T> call(Observable<T> observable) {
-					return observable.doOnNext(new Action1<T>() {
+			final Observable<CacheWrapper<T>> asyncObservableCaching = asyncObservable
+					.map(new Func1<T, CacheWrapper<T>>() {
 						@Override
-						public void call(T value) {
+						public CacheWrapper<T> call(T value) {
+							return new CacheWrapper<>(value);
+						}
+					})
+					.doOnNext(new Action1<CacheWrapper<T>>() {
+						@Override
+						public void call(CacheWrapper<T> value) {
 							if (value != null) {
-								storage.put(prependedKey, new CacheWrapper<>(value));
+								storage.put(prependedKey, value);
 							}
 						}
 					});
-				}
-			});
 
 			final Observable<CacheWrapper<T>> cacheObservable = Observable.create(new Observable.OnSubscribe<CacheWrapper<T>>() {
 				@Override
@@ -193,22 +195,22 @@ public class RxCache {
 			});
 
 			return getStrategyObservable(cacheStrategy, cacheObservable, asyncObservableCaching)
-					.subscribeOn(Schedulers.io());
+					.subscribeOn(Schedulers.io())
+					.map(new Func1<CacheWrapper<T>, T>() {
+						@Override
+						public T call(CacheWrapper<T> cacheWrapper) {
+							return cacheWrapper.getData();
+						}
+					});
 		}
 
 		/**
 		 * Convert the given {@link CacheStrategy} to an {@link Observable} according to the rules to apply
 		 */
-		protected Observable<T> getStrategyObservable(final CacheStrategy strategy, final Observable<CacheWrapper<T>> cacheObservable, final Observable<T> asyncObservable) {
+		protected Observable<CacheWrapper<T>> getStrategyObservable(final CacheStrategy strategy, final Observable<CacheWrapper<T>> cacheObservable, final Observable<CacheWrapper<T>> asyncObservable) {
 			switch (strategy) {
 				case CACHE_THEN_ASYNC:
 					return cacheObservable
-							.map(new Func1<CacheWrapper<T>, T>() {
-								@Override
-								public T call(CacheWrapper<T> cacheWrapper) {
-									return cacheWrapper.getData();
-								}
-							})
 							.concatWith(asyncObservable);
 				case CACHE_OR_ASYNC:
 					return cacheObservable
@@ -218,48 +220,24 @@ public class RxCache {
 									return isValid(cacheWrapper.getCachedDate());
 								}
 							})
-							.map(new Func1<CacheWrapper<T>, T>() {
-								@Override
-								public T call(CacheWrapper<T> cacheWrapper) {
-									return cacheWrapper.getData();
-								}
-							})
 							.switchIfEmpty(asyncObservable
-									.onErrorResumeNext(new Func1<Throwable, Observable<T>>() {
+									.onErrorResumeNext(new Func1<Throwable, Observable<CacheWrapper<T>>>() {
 										@Override
-										public Observable<T> call(Throwable throwable) {
+										public Observable<CacheWrapper<T>> call(Throwable throwable) {
 											return cacheObservable
-													.map(new Func1<CacheWrapper<T>, T>() {
-														@Override
-														public T call(CacheWrapper<T> cacheWrapper) {
-															return cacheWrapper.getData();
-														}
-													})
-													.switchIfEmpty(Observable.<T>error(throwable));
+													.switchIfEmpty(Observable.<CacheWrapper<T>>error(throwable));
 										}
 									}));
 				case JUST_CACHE:
-					return cacheObservable
-							.map(new Func1<CacheWrapper<T>, T>() {
-								@Override
-								public T call(CacheWrapper<T> cacheWrapper) {
-									return cacheWrapper.getData();
-								}
-							});
+					return cacheObservable;
 				case NO_CACHE:
 					return asyncObservable;
 				case ASYNC_OR_CACHE:
-					return asyncObservable.onErrorResumeNext(new Func1<Throwable, Observable<T>>() {
+					return asyncObservable.onErrorResumeNext(new Func1<Throwable, Observable<CacheWrapper<T>>>() {
 						@Override
-						public Observable<T> call(Throwable throwable) {
+						public Observable<CacheWrapper<T>> call(Throwable throwable) {
 							return cacheObservable
-									.map(new Func1<CacheWrapper<T>, T>() {
-										@Override
-										public T call(CacheWrapper<T> cacheWrapper) {
-											return cacheWrapper.getData();
-										}
-									})
-									.switchIfEmpty(Observable.<T>error(throwable));
+									.switchIfEmpty(Observable.<CacheWrapper<T>>error(throwable));
 						}
 					});
 			}
