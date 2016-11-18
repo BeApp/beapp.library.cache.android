@@ -13,7 +13,7 @@ final InMemoryStorage storage = new InMemoryStorage();
 final RxCache rxCache = new RxCache(storage);
 
 rxCache.fromKey("remotedata_%d", 1)
-    .withStrategy(CacheStrategy.CACHE_THEN_ASYNC)
+    .withStrategy(CacheStrategy.cacheThenAsync())
     .withAsync(...) // Your async observable method (Retrofit call for example)
     .toObservable()
     .subscribe(result -> ..., 

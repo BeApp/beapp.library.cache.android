@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import fr.beapp.cache.internal.CacheWrapper;
 import fr.beapp.cache.storage.SnappyDBStorage;
 import fr.beapp.cache.storage.Storage;
+import fr.beapp.cache.strategy.CacheStrategy;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action1;
@@ -91,7 +92,7 @@ public class RxCache {
 		protected long ttlValue;
 		protected TimeUnit ttlTimeUnit;
 		protected String sessionName;
-		protected CacheStrategy cacheStrategy = CacheStrategy.CACHE_OR_ASYNC;
+		protected CacheStrategy cacheStrategy = null;
 		protected boolean keepExpiredCache = false;
 		protected Observable<T> asyncObservable = Observable.empty();
 
@@ -194,7 +195,11 @@ public class RxCache {
 				}
 			});
 
-			return getStrategyObservable(cacheStrategy, cacheObservable, asyncObservableCaching)
+			if (cacheStrategy == null) {
+				cacheStrategy = CacheStrategy.cacheOrAsync(keepExpiredCache, ttlValue, ttlTimeUnit);
+			}
+
+			return cacheStrategy.getStrategyObservable(cacheObservable, asyncObservableCaching)
 					.subscribeOn(Schedulers.io())
 					.map(new Func1<CacheWrapper<T>, T>() {
 						@Override
@@ -204,48 +209,5 @@ public class RxCache {
 					});
 		}
 
-		/**
-		 * Convert the given {@link CacheStrategy} to an {@link Observable} according to the rules to apply
-		 */
-		protected Observable<CacheWrapper<T>> getStrategyObservable(final CacheStrategy strategy, final Observable<CacheWrapper<T>> cacheObservable, final Observable<CacheWrapper<T>> asyncObservable) {
-			switch (strategy) {
-				case CACHE_THEN_ASYNC:
-					return cacheObservable
-							.concatWith(asyncObservable);
-				case CACHE_OR_ASYNC:
-					return cacheObservable
-							.filter(new Func1<CacheWrapper<T>, Boolean>() {
-								@Override
-								public Boolean call(CacheWrapper<T> cacheWrapper) {
-									return isValid(cacheWrapper.getCachedDate());
-								}
-							})
-							.switchIfEmpty(asyncObservable
-									.onErrorResumeNext(new Func1<Throwable, Observable<CacheWrapper<T>>>() {
-										@Override
-										public Observable<CacheWrapper<T>> call(Throwable throwable) {
-											return cacheObservable
-													.switchIfEmpty(Observable.<CacheWrapper<T>>error(throwable));
-										}
-									}));
-				case JUST_CACHE:
-					return cacheObservable;
-				case NO_CACHE:
-					return asyncObservable;
-				case ASYNC_OR_CACHE:
-					return asyncObservable.onErrorResumeNext(new Func1<Throwable, Observable<CacheWrapper<T>>>() {
-						@Override
-						public Observable<CacheWrapper<T>> call(Throwable throwable) {
-							return cacheObservable
-									.switchIfEmpty(Observable.<CacheWrapper<T>>error(throwable));
-						}
-					});
-			}
-			return asyncObservable;
-		}
-
-		protected boolean isValid(long cacheDate) {
-			return keepExpiredCache || System.currentTimeMillis() < cacheDate + TimeUnit.MILLISECONDS.convert(ttlValue, ttlTimeUnit);
-		}
 	}
 }
