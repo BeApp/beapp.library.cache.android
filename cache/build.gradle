@@ -52,8 +52,9 @@ sonarqube {
     androidVariant 'debug'
     properties {
         property 'sonar.host.url', 'http://sonar.beapp.fr'
-        property 'sonar.projectKey', "${libraryGroupId}"
-        property 'sonar.projectName', "${libraryName}"
+        property 'sonar.projectKey', "${libraryGroupId}:android"
+        property 'sonar.projectName', "${libraryName} - Android"
+        property 'sonar.projectDescription', "${libraryDescription}"
         property 'sonar.projectVersion', "${libraryVersion}"
         property 'sonar.sourceEncoding', 'UTF-8'
         property 'sonar.exclusions', '**/*Test.java'
