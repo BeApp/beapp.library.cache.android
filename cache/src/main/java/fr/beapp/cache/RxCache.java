@@ -134,10 +134,7 @@ public class RxCache {
 		 * The {@link Observable} to use for async operations.
 		 */
 		public StrategyBuilder<T> withAsync(@Nullable Observable<T> asyncObservable) {
-			if (asyncObservable == null) {
-				asyncObservable = Observable.empty();
-			}
-			this.asyncObservable = asyncObservable;
+			this.asyncObservable = asyncObservable == null ? Observable.<T>empty() : asyncObservable;
 			return this;
 		}
 
