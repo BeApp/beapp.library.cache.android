@@ -8,6 +8,7 @@ public class CacheWrapper<T> implements Serializable {
 	private T data;
 
 	public CacheWrapper() {
+		// Needed for deserialization
 	}
 
 	public CacheWrapper(T data) {
