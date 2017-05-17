@@ -9,7 +9,7 @@ Two steps are needed :
  
  
 ```java
-final InMemoryStorage storage = new InMemoryStorage();
+final Storage storage = new SnappyDBStorage();
 final RxCache rxCache = new RxCache(storage);
 
 rxCache.fromKey("remotedata_%d", 1)
