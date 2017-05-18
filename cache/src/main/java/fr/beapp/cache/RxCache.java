@@ -86,7 +86,6 @@ public class RxCache {
 
 	public static class StrategyBuilder<T> {
 		protected final String key;
-		protected final Object[] args;
 		protected final Storage storage;
 
 		protected long ttlValue;
@@ -97,8 +96,7 @@ public class RxCache {
 		protected Observable<T> asyncObservable = Observable.empty();
 
 		public StrategyBuilder(@NonNull RxCache rxCache, @NonNull final String key, Object... args) {
-			this.key = key;
-			this.args = args;
+			this.key = String.format(key, args);
 			this.storage = rxCache.getStorage();
 			this.ttlValue = rxCache.getDefaultTTLValue();
 			this.ttlTimeUnit = rxCache.getDefaultTTLTimeUnit();
