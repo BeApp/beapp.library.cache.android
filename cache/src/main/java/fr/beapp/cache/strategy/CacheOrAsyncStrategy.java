@@ -19,6 +19,7 @@ public class CacheOrAsyncStrategy extends CacheStrategy {
 	protected TimeUnit ttlTimeUnit = DEFAULT_TTL_TIME_UNIT;
 
 	public CacheOrAsyncStrategy() {
+		// Just use default values
 	}
 
 	public CacheOrAsyncStrategy(boolean keepExpiredCache, long ttlValue, TimeUnit ttlTimeUnit) {

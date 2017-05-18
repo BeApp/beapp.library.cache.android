@@ -32,32 +32,33 @@ public class SnappyDBStorage implements Storage {
 	}
 
 	public DB getDb(boolean wasForceDeleted) {
-		if (db == null) {
-			String path = context.getFilesDir().getAbsolutePath() + File.separator + "snappydb";
-			String databaseName = "snappydb";
+		if (db != null)
+			return db;
 
-			try {
-				Logger.info("Initializing SnappyDB database %s at %s", databaseName, path);
+		String path = context.getFilesDir().getAbsolutePath() + File.separator + "snappydb";
+		String databaseName = "snappydb";
 
-				db = openDb(path, databaseName);
-			} catch (Exception e) {
-				Logger.error("Can't open cache database. No data will be cached", e);
+		try {
+			Logger.info("Initializing SnappyDB database %s at %s", databaseName, path);
 
-				// TODO Keep an eye on https://github.com/nhachicha/SnappyDB/issues/42 and implement a proper solution when available
-				if (!wasForceDeleted) {    // Prevent deadly loop
-					// For now, we force deleting the database if we received an Exception about corrupted database
-					if (e.getLocalizedMessage().contains("Corruption")) {
-						Logger.warn("SnappyDB database seems to be corrupted. Trying to delete it");
+			db = openDb(path, databaseName);
+		} catch (Exception e) {
+			Logger.error("Can't open cache database. No data will be cached", e);
 
-						File databaseFile = new File(path, databaseName);
-						try {
-							databaseFile.delete();
-						} catch (Exception ignored) {
-						}
+			// TODO Keep an eye on https://github.com/nhachicha/SnappyDB/issues/42 and implement a proper solution when available
+			// For now, we force deleting the database if we received an Exception about corrupted database
+			if (!wasForceDeleted && e.getLocalizedMessage().contains("Corruption")) {
+				Logger.warn("SnappyDB database seems to be corrupted. Trying to delete it");
 
-						return getDb(true);
+				File databaseFile = new File(path, databaseName);
+				try {
+					if (databaseFile.delete()) {
+						Logger.debug("SnappyDB database file deleted from %s", databaseFile);
 					}
+				} catch (Exception ignored) {
 				}
+
+				return getDb(true);
 			}
 		}
 		return db;
@@ -69,9 +70,9 @@ public class SnappyDBStorage implements Storage {
 	 * @param path         The path where the database will bestored
 	 * @param databaseName The database name to use
 	 * @return A {@link DB} instance
-	 * @throws Exception
+	 * @throws SnappydbException
 	 */
-	protected DB openDb(@NonNull String path, @NonNull String databaseName) throws Exception {
+	protected DB openDb(@NonNull String path, @NonNull String databaseName) throws SnappydbException {
 		return new SnappyDB.Builder(context)
 				.directory(path)
 				.name(databaseName)
