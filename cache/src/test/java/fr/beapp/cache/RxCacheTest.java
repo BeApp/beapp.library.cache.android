@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import fr.beapp.cache.internal.CacheWrapper;
+import fr.beapp.cache.storage.Storage;
 import fr.beapp.cache.strategy.CacheStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -32,7 +33,7 @@ public class RxCacheTest {
 
 	private static final int MINUTES_60 = 3600 * 1000;
 
-	private final InMemoryStorage storage = new InMemoryStorage();
+	private final Storage storage = new InMemoryStorage();
 	private final RxCache rxCache = new RxCache(storage);
 	private TestSubscriber<Object> testObserver;
 
