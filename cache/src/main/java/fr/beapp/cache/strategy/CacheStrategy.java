@@ -6,7 +6,9 @@ import android.support.annotation.NonNull;
 import java.util.concurrent.TimeUnit;
 
 import fr.beapp.cache.internal.CacheWrapper;
-import rx.Observable;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 
 public abstract class CacheStrategy {
 
@@ -52,8 +54,8 @@ public abstract class CacheStrategy {
 	}
 
 	/**
-	 * Convert the given {@link CacheStrategy} to an {@link Observable} according to the rules to apply
+	 * Convert the given {@link CacheStrategy} to an {@link Maybe} according to the rules to apply
 	 */
-	public abstract <T> Observable<CacheWrapper<T>> getStrategyObservable(@NonNull Observable<CacheWrapper<T>> cacheObservable, @NonNull Observable<CacheWrapper<T>> asyncObservable);
+	public abstract <T> Flowable<CacheWrapper<T>> getStrategyObservable(@NonNull Maybe<CacheWrapper<T>> cacheObservable, @NonNull Single<CacheWrapper<T>> asyncObservable);
 
 }

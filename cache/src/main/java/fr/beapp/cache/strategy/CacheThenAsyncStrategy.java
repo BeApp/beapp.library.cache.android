@@ -4,14 +4,16 @@ package fr.beapp.cache.strategy;
 import android.support.annotation.NonNull;
 
 import fr.beapp.cache.internal.CacheWrapper;
-import rx.Observable;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 
 public class CacheThenAsyncStrategy extends CacheStrategy {
 
 	@Override
-	public <T> Observable<CacheWrapper<T>> getStrategyObservable(@NonNull Observable<CacheWrapper<T>> cacheObservable, @NonNull Observable<CacheWrapper<T>> asyncObservable) {
+	public <T> Flowable<CacheWrapper<T>> getStrategyObservable(@NonNull Maybe<CacheWrapper<T>> cacheObservable, @NonNull Single<CacheWrapper<T>> asyncObservable) {
 		return cacheObservable
-				.concatWith(asyncObservable);
+				.concatWith(asyncObservable.toMaybe());
 	}
 
 }
