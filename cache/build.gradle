@@ -5,12 +5,12 @@ repositories {
 
 apply plugin: 'com.android.library'
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.3"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 26
     }
 }
 
@@ -21,7 +21,7 @@ dependencies {
     compile 'io.reactivex:rxjava:1.2.2'
     compile 'com.snappydb:snappydb-lib:0.5.2'
 
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
 }
 
 ext {
