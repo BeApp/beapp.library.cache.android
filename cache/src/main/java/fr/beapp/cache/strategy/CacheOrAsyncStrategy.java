@@ -6,8 +6,12 @@ import android.support.annotation.NonNull;
 import java.util.concurrent.TimeUnit;
 
 import fr.beapp.cache.internal.CacheWrapper;
-import rx.Observable;
-import rx.functions.Func1;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 
 public class CacheOrAsyncStrategy extends CacheStrategy {
 
@@ -29,22 +33,24 @@ public class CacheOrAsyncStrategy extends CacheStrategy {
 	}
 
 	@Override
-	public <T> Observable<CacheWrapper<T>> getStrategyObservable(@NonNull final Observable<CacheWrapper<T>> cacheObservable, @NonNull final Observable<CacheWrapper<T>> asyncObservable) {
+	public <T> Flowable<CacheWrapper<T>> getStrategyObservable(@NonNull final Maybe<CacheWrapper<T>> cacheObservable, @NonNull final Single<CacheWrapper<T>> asyncObservable) {
 		return cacheObservable
-				.filter(new Func1<CacheWrapper<T>, Boolean>() {
+				.filter(new Predicate<CacheWrapper<T>>() {
 					@Override
-					public Boolean call(CacheWrapper<T> cacheWrapper) {
+					public boolean test(@io.reactivex.annotations.NonNull CacheWrapper<T> cacheWrapper) throws Exception {
 						return isValid(cacheWrapper.getCachedDate());
 					}
 				})
 				.switchIfEmpty(asyncObservable
-						.onErrorResumeNext(new Func1<Throwable, Observable<CacheWrapper<T>>>() {
+						.onErrorResumeNext(new Function<Throwable, SingleSource<? extends CacheWrapper<T>>>() {
 							@Override
-							public Observable<CacheWrapper<T>> call(Throwable throwable) {
+							public SingleSource<? extends CacheWrapper<T>> apply(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
 								return cacheObservable
-										.switchIfEmpty(Observable.<CacheWrapper<T>>error(throwable));
+										.switchIfEmpty(Maybe.<CacheWrapper<T>>error(throwable))
+										.toSingle();
 							}
-						}));
+						}).toMaybe())
+				.toFlowable();
 	}
 
 	public CacheOrAsyncStrategy keepExpiredCache(boolean keepExpiredCache) {

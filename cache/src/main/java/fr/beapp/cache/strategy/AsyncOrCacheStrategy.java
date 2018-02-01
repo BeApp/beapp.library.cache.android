@@ -4,20 +4,26 @@ package fr.beapp.cache.strategy;
 import android.support.annotation.NonNull;
 
 import fr.beapp.cache.internal.CacheWrapper;
-import rx.Observable;
-import rx.functions.Func1;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Function;
 
 public class AsyncOrCacheStrategy extends CacheStrategy {
 
 	@Override
-	public <T> Observable<CacheWrapper<T>> getStrategyObservable(@NonNull final Observable<CacheWrapper<T>> cacheObservable, @NonNull final Observable<CacheWrapper<T>> asyncObservable) {
-		return asyncObservable.onErrorResumeNext(new Func1<Throwable, Observable<CacheWrapper<T>>>() {
-			@Override
-			public Observable<CacheWrapper<T>> call(Throwable throwable) {
-				return cacheObservable
-						.switchIfEmpty(Observable.<CacheWrapper<T>>error(throwable));
-			}
-		});
+	public <T> Flowable<CacheWrapper<T>> getStrategyObservable(@NonNull final Maybe<CacheWrapper<T>> cacheObservable, @NonNull final Single<CacheWrapper<T>> asyncObservable) {
+		return asyncObservable
+				.onErrorResumeNext(new Function<Throwable, SingleSource<? extends CacheWrapper<T>>>() {
+					@Override
+					public SingleSource<? extends CacheWrapper<T>> apply(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
+						return cacheObservable
+								.switchIfEmpty(Maybe.<CacheWrapper<T>>error(throwable))
+								.toSingle();
+					}
+				})
+				.toFlowable();
 	}
 
 }

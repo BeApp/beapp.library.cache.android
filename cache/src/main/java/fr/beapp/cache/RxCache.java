@@ -10,11 +10,14 @@ import fr.beapp.cache.internal.CacheWrapper;
 import fr.beapp.cache.storage.SnappyDBStorage;
 import fr.beapp.cache.storage.Storage;
 import fr.beapp.cache.strategy.CacheStrategy;
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeEmitter;
+import io.reactivex.MaybeOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * This class is the entry point of the Cache management.
@@ -93,7 +96,7 @@ public class RxCache {
 		protected String sessionName;
 		protected CacheStrategy cacheStrategy = null;
 		protected boolean keepExpiredCache = false;
-		protected Observable<T> asyncObservable = Observable.empty();
+		protected Single<T> asyncObservable = Single.never();
 
 		public StrategyBuilder(@NonNull RxCache rxCache, @NonNull final String key, Object... args) {
 			this.key = String.format(key, args);
@@ -129,10 +132,10 @@ public class RxCache {
 		}
 
 		/**
-		 * The {@link Observable} to use for async operations.
+		 * The {@link Single} to use for async operations.
 		 */
-		public StrategyBuilder<T> withAsync(@Nullable Observable<T> asyncObservable) {
-			this.asyncObservable = asyncObservable == null ? Observable.<T>empty() : asyncObservable;
+		public StrategyBuilder<T> withAsync(@Nullable Single<T> asyncObservable) {
+			this.asyncObservable = asyncObservable == null ? Single.<T>never() : asyncObservable;
 			return this;
 		}
 
@@ -153,39 +156,39 @@ public class RxCache {
 		}
 
 		/**
-		 * Convert this resolution data strategy to a Rx {@link Observable}
+		 * Convert this resolution data strategy to a Rx {@link Maybe}
 		 */
-		public Observable<T> toObservable() {
+		public Flowable<T> toObservable() {
 			final String prependedKey = sessionName != null ? sessionName + key : key;
 
-			final Observable<CacheWrapper<T>> asyncObservableCaching = asyncObservable
-					.map(new Func1<T, CacheWrapper<T>>() {
+			final Single<CacheWrapper<T>> asyncObservableCaching = asyncObservable
+					.map(new Function<T, CacheWrapper<T>>() {
 						@Override
-						public CacheWrapper<T> call(T value) {
+						public CacheWrapper<T> apply(@io.reactivex.annotations.NonNull T value) throws Exception {
 							return new CacheWrapper<>(value);
 						}
 					})
-					.doOnNext(new Action1<CacheWrapper<T>>() {
+					.doOnSuccess(new Consumer<CacheWrapper<T>>() {
 						@Override
-						public void call(CacheWrapper<T> value) {
+						public void accept(@io.reactivex.annotations.NonNull CacheWrapper<T> value) throws Exception {
 							if (value != null) {
 								storage.put(prependedKey, value);
 							}
 						}
 					});
 
-			final Observable<CacheWrapper<T>> cacheObservable = Observable.create(new Observable.OnSubscribe<CacheWrapper<T>>() {
+			final Maybe<CacheWrapper<T>> cacheObservable = Maybe.create(new MaybeOnSubscribe<CacheWrapper<T>>() {
 				@Override
 				@SuppressWarnings("unchecked")
-				public void call(Subscriber<? super CacheWrapper<T>> subscriber) {
+				public void subscribe(@io.reactivex.annotations.NonNull MaybeEmitter<CacheWrapper<T>> emitter) throws Exception {
 					try {
 						CacheWrapper<T> cachedData = storage.get(prependedKey, CacheWrapper.class);
 						if (cachedData != null) {
-							subscriber.onNext(cachedData);
+							emitter.onSuccess(cachedData);
 						}
-						subscriber.onCompleted();
+						emitter.onComplete();
 					} catch (Exception e) {
-						subscriber.onError(e);
+						emitter.onError(e);
 					}
 				}
 			});
@@ -196,9 +199,9 @@ public class RxCache {
 
 			return cacheStrategy.getStrategyObservable(cacheObservable, asyncObservableCaching)
 					.subscribeOn(Schedulers.io())
-					.map(new Func1<CacheWrapper<T>, T>() {
+					.map(new Function<CacheWrapper<T>, T>() {
 						@Override
-						public T call(CacheWrapper<T> cacheWrapper) {
+						public T apply(@io.reactivex.annotations.NonNull CacheWrapper<T> cacheWrapper) throws Exception {
 							return cacheWrapper.getData();
 						}
 					});
