@@ -31,7 +31,7 @@ public class SnappyDBStorage implements Storage {
 		return getDb(false);
 	}
 
-	public DB getDb(boolean wasForceDeleted) {
+	public synchronized DB getDb(boolean wasForceDeleted) {
 		if (db != null)
 			return db;
 

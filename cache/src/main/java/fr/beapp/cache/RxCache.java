@@ -184,7 +184,11 @@ public class RxCache {
 					try {
 						CacheWrapper<T> cachedData = storage.get(prependedKey, CacheWrapper.class);
 						if (cachedData != null) {
-							emitter.onSuccess(cachedData);
+							if (cachedData.getData() != null) {
+								emitter.onSuccess(cachedData);
+							} else {
+								storage.delete(prependedKey);
+							}
 						}
 						emitter.onComplete();
 					} catch (Exception e) {
