@@ -51,7 +51,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();
@@ -65,7 +65,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Single.error(asyncException))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertError(asyncException);
@@ -78,7 +78,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();
@@ -92,7 +92,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Single.error(asyncException))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertError(asyncException);
@@ -108,7 +108,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();
@@ -122,7 +122,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.error(asyncException))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertError(asyncException);
@@ -135,7 +135,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();
@@ -149,7 +149,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.error(asyncException))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();    // TODO Async in error but we have expired value from cache. Should we really swallow this exception ?
@@ -163,7 +163,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();
@@ -177,7 +177,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.error(asyncException))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();    // TODO Should we really swallow this exception ?
@@ -193,7 +193,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();
@@ -206,7 +206,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(Single.error(asyncException))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();    // Ok, because Async shouldn't be called with this strategy
@@ -219,7 +219,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();
@@ -233,7 +233,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();    // Ok, because Async shouldn't be called with this strategy
@@ -249,7 +249,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();
@@ -263,7 +263,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Single.error(asyncException))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertError(asyncException);
@@ -276,7 +276,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();
@@ -290,7 +290,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Single.error(asyncException))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertError(asyncException);
@@ -305,7 +305,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();
@@ -319,7 +319,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Single.error(asyncException))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertError(asyncException);
@@ -332,7 +332,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();
@@ -346,7 +346,7 @@ public class RxCacheTest {
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Single.error(asyncException))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();    // TODO Async in error but we have value from cache. Should we really swallow this exception ?
@@ -367,14 +367,14 @@ public class RxCacheTest {
 
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(new CacheStrategy() {
+				.withStrategy(new CacheStrategy("CUSTOM_STRATEGY") {
 					@Override
 					public <T> Flowable<CacheWrapper<T>> getStrategyObservable(@NonNull Maybe<CacheWrapper<T>> cacheObservable, @NonNull Single<CacheWrapper<T>> asyncObservable) {
 						return Flowable.just(new CacheWrapper<>((T) customObject));
 					}
 				})
 				.withAsync(Single.just(ASYNC_OBJECT))
-				.toObservable().subscribe(testObserver);
+				.fetch().subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
 		testObserver.assertNoErrors();

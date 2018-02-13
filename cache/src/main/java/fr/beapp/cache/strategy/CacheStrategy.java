@@ -17,6 +17,12 @@ public abstract class CacheStrategy {
 	private static CacheStrategy justAsync;
 	private static CacheStrategy noCache;
 
+	private final String name;
+
+	protected CacheStrategy(@NonNull String name) {
+		this.name = name;
+	}
+
 	public static CacheStrategy asyncOrCache() {
 		if (asyncOrCacheStrategy == null) {
 			asyncOrCacheStrategy = new AsyncOrCacheStrategy();
@@ -51,6 +57,15 @@ public abstract class CacheStrategy {
 			noCache = new NoCacheStrategy();
 		}
 		return noCache;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	/**
