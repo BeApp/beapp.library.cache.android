@@ -1,6 +1,7 @@
 package fr.beapp.cache;
 
 import android.content.Context;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -117,7 +118,7 @@ public class RxCache {
 		/**
 		 * Apply the TTL (Time-To-Live) on the cached data. If data creation date exceeds this TTL, it will be considered expired
 		 */
-		public StrategyBuilder<T> withTTL(long value, @NonNull TimeUnit timeUnit) {
+		public StrategyBuilder<T> withTTL(@IntRange(from = 0) long value, @NonNull TimeUnit timeUnit) {
 			this.ttlValue = value;
 			this.ttlTimeUnit = timeUnit;
 			return this;
@@ -155,10 +156,28 @@ public class RxCache {
 			return this;
 		}
 
+		@Deprecated
+		public Flowable<T> toObservable() {
+			return fetch();
+		}
+
 		/**
 		 * Convert this resolution data strategy to a Rx {@link Maybe}
 		 */
-		public Flowable<T> toObservable() {
+		public Flowable<T> fetch() {
+			return fetchWrapper()
+					.map(new Function<CacheWrapper<T>, T>() {
+						@Override
+						public T apply(@io.reactivex.annotations.NonNull CacheWrapper<T> cacheWrapper) throws Exception {
+							return cacheWrapper.getData();
+						}
+					});
+		}
+
+		/**
+		 * Convert this resolution data strategy to a Rx {@link Maybe}
+		 */
+		public Flowable<CacheWrapper<T>> fetchWrapper() {
 			final String prependedKey = sessionName != null ? sessionName + key : key;
 
 			final Single<CacheWrapper<T>> asyncObservableCaching = asyncObservable
@@ -171,9 +190,7 @@ public class RxCache {
 					.doOnSuccess(new Consumer<CacheWrapper<T>>() {
 						@Override
 						public void accept(@io.reactivex.annotations.NonNull CacheWrapper<T> value) throws Exception {
-							if (value != null) {
-								storage.put(prependedKey, value);
-							}
+							storage.put(prependedKey, value);
 						}
 					});
 
@@ -202,13 +219,7 @@ public class RxCache {
 			}
 
 			return cacheStrategy.getStrategyObservable(cacheObservable, asyncObservableCaching)
-					.subscribeOn(Schedulers.io())
-					.map(new Function<CacheWrapper<T>, T>() {
-						@Override
-						public T apply(@io.reactivex.annotations.NonNull CacheWrapper<T> cacheWrapper) throws Exception {
-							return cacheWrapper.getData();
-						}
-					});
+					.subscribeOn(Schedulers.io());
 		}
 
 	}
