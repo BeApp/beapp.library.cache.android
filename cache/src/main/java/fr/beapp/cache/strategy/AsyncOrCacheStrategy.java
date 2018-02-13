@@ -12,6 +12,10 @@ import io.reactivex.functions.Function;
 
 public class AsyncOrCacheStrategy extends CacheStrategy {
 
+	public AsyncOrCacheStrategy() {
+		super("ASYNC_OR_CACHE");
+	}
+
 	@Override
 	public <T> Flowable<CacheWrapper<T>> getStrategyObservable(@NonNull final Maybe<CacheWrapper<T>> cacheObservable, @NonNull final Single<CacheWrapper<T>> asyncObservable) {
 		return asyncObservable

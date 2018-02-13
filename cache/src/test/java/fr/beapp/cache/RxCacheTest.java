@@ -367,7 +367,7 @@ public class RxCacheTest {
 
 		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
-				.withStrategy(new CacheStrategy() {
+				.withStrategy(new CacheStrategy("CUSTOM_STRATEGY") {
 					@Override
 					public <T> Flowable<CacheWrapper<T>> getStrategyObservable(@NonNull Maybe<CacheWrapper<T>> cacheObservable, @NonNull Single<CacheWrapper<T>> asyncObservable) {
 						return Flowable.just(new CacheWrapper<>((T) customObject));

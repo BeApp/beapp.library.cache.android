@@ -24,12 +24,22 @@ public class CacheOrAsyncStrategy extends CacheStrategy {
 
 	public CacheOrAsyncStrategy() {
 		// Just use default values
+		super("CACHE_OR_ASYNC");
 	}
 
 	public CacheOrAsyncStrategy(boolean keepExpiredCache, long ttlValue, TimeUnit ttlTimeUnit) {
+		this();
 		this.keepExpiredCache = keepExpiredCache;
 		this.ttlValue = ttlValue;
 		this.ttlTimeUnit = ttlTimeUnit;
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + "{" +
+				"keepExpiredCache=" + keepExpiredCache + ", " +
+				"ttl=" + ttlValue + " " + ttlTimeUnit +
+				"}";
 	}
 
 	@Override
