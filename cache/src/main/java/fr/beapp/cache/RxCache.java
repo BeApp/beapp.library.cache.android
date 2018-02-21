@@ -5,16 +5,15 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import fr.beapp.cache.internal.CacheWrapper;
 import fr.beapp.cache.storage.SnappyDBStorage;
 import fr.beapp.cache.storage.Storage;
 import fr.beapp.cache.strategy.CacheStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-import io.reactivex.MaybeEmitter;
-import io.reactivex.MaybeOnSubscribe;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -31,6 +30,7 @@ public class RxCache {
 	protected String defaultSessionName = null;
 	protected long defaultTTLValue = 30;
 	protected TimeUnit defaultTTLTimeUnit = TimeUnit.MINUTES;
+	protected Scheduler defaultScheduler = Schedulers.io();
 
 	/**
 	 * Initialize the cache with {@link SnappyDBStorage} as storage implementation.
@@ -77,6 +77,15 @@ public class RxCache {
 		return this;
 	}
 
+	public Scheduler getDefaultScheduler() {
+		return defaultScheduler;
+	}
+
+	public RxCache withDefaultScheduler(@NonNull Scheduler scheduler) {
+		this.defaultScheduler = scheduler;
+		return this;
+	}
+
 	/**
 	 * Create a new builder to configure data cache resolution strategy for the given key.
 	 *
@@ -95,6 +104,8 @@ public class RxCache {
 		protected long ttlValue;
 		protected TimeUnit ttlTimeUnit;
 		protected String sessionName;
+		protected Scheduler scheduler;
+
 		protected CacheStrategy cacheStrategy = null;
 		protected boolean keepExpiredCache = false;
 		protected Single<T> asyncObservable = Single.never();
@@ -105,6 +116,7 @@ public class RxCache {
 			this.ttlValue = rxCache.getDefaultTTLValue();
 			this.ttlTimeUnit = rxCache.getDefaultTTLTimeUnit();
 			this.sessionName = rxCache.getDefaultSessionName();
+			this.scheduler = rxCache.getDefaultScheduler();
 		}
 
 		/**
@@ -129,6 +141,14 @@ public class RxCache {
 		 */
 		public StrategyBuilder<T> withSession(@Nullable String sessionName) {
 			this.sessionName = sessionName;
+			return this;
+		}
+
+		/**
+		 * Set the scheduler to use for cache observable
+		 */
+		public StrategyBuilder<T> withDefaultScheduler(@NonNull Scheduler scheduler) {
+			this.scheduler = scheduler;
 			return this;
 		}
 
@@ -180,7 +200,18 @@ public class RxCache {
 		public Flowable<CacheWrapper<T>> fetchWrapper() {
 			final String prependedKey = sessionName != null ? sessionName + key : key;
 
-			final Single<CacheWrapper<T>> asyncObservableCaching = asyncObservable
+			final Single<CacheWrapper<T>> asyncObservableCaching = buildAsyncObservableCaching(asyncObservable, prependedKey);
+			final Maybe<CacheWrapper<T>> cacheObservable = buildCacheObservable(prependedKey);
+
+			if (cacheStrategy == null) {
+				cacheStrategy = CacheStrategy.cacheOrAsync(keepExpiredCache, ttlValue, ttlTimeUnit);
+			}
+
+			return cacheStrategy.getStrategyObservable(cacheObservable, asyncObservableCaching);
+		}
+
+		protected Single<CacheWrapper<T>> buildAsyncObservableCaching(@NonNull Single<T> asyncObservable, final String prependedKey) {
+			return asyncObservable
 					.map(new Function<T, CacheWrapper<T>>() {
 						@Override
 						public CacheWrapper<T> apply(@io.reactivex.annotations.NonNull T value) throws Exception {
@@ -193,34 +224,24 @@ public class RxCache {
 							storage.put(prependedKey, value);
 						}
 					});
-
-			final Maybe<CacheWrapper<T>> cacheObservable = Maybe.create(new MaybeOnSubscribe<CacheWrapper<T>>() {
-				@Override
-				@SuppressWarnings("unchecked")
-				public void subscribe(@io.reactivex.annotations.NonNull MaybeEmitter<CacheWrapper<T>> emitter) throws Exception {
-					try {
-						CacheWrapper<T> cachedData = storage.get(prependedKey, CacheWrapper.class);
-						if (cachedData != null) {
-							if (cachedData.getData() != null) {
-								emitter.onSuccess(cachedData);
-							} else {
-								storage.delete(prependedKey);
-							}
-						}
-						emitter.onComplete();
-					} catch (Exception e) {
-						emitter.onError(e);
-					}
-				}
-			});
-
-			if (cacheStrategy == null) {
-				cacheStrategy = CacheStrategy.cacheOrAsync(keepExpiredCache, ttlValue, ttlTimeUnit);
-			}
-
-			return cacheStrategy.getStrategyObservable(cacheObservable, asyncObservableCaching)
-					.subscribeOn(Schedulers.io());
 		}
 
+		protected Maybe<CacheWrapper<T>> buildCacheObservable(@NonNull final String prependedKey) {
+			return Maybe.fromCallable(new Callable<CacheWrapper<T>>() {
+				@Override
+				@SuppressWarnings("unchecked")
+				public CacheWrapper<T> call() throws Exception {
+					CacheWrapper<T> cachedData = storage.get(prependedKey, CacheWrapper.class);
+					if (cachedData != null) {
+						if (cachedData.getData() != null) {
+							return cachedData.setFromCache(true);
+						} else {
+							storage.delete(prependedKey);
+						}
+					}
+					return null;
+				}
+			}).subscribeOn(scheduler);
+		}
 	}
 }

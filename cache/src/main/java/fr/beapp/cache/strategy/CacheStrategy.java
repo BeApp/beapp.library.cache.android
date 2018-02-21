@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import java.util.concurrent.TimeUnit;
 
-import fr.beapp.cache.internal.CacheWrapper;
+import fr.beapp.cache.CacheWrapper;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
