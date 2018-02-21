@@ -5,14 +5,13 @@ import android.support.annotation.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import fr.beapp.cache.storage.Storage;
 import fr.beapp.cache.strategy.CacheStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subscribers.TestSubscriber;
@@ -31,10 +30,11 @@ public class RxCacheTest {
 			return "Cache Object";
 		}
 	};
-	public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 	@SuppressWarnings("ThrowableInstanceNeverThrown")
 	private static Exception asyncException = new Exception() {
 	};
+
+	private static final Scheduler OBSERVE_ON_SCHEDULER = Schedulers.trampoline();
 
 	private static final int MINUTES_60 = 3600 * 1000;
 
@@ -62,7 +62,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -79,7 +79,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Single.error(asyncException))
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -95,7 +95,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -112,7 +112,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Single.error(asyncException))
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -131,7 +131,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -148,7 +148,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.error(asyncException))
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -164,7 +164,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -181,7 +181,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.error(asyncException))
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -198,7 +198,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -215,7 +215,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.error(asyncException))
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -234,7 +234,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -250,7 +250,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(Single.error(asyncException))
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -266,7 +266,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -283,7 +283,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -302,7 +302,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -319,7 +319,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Single.error(asyncException))
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -335,7 +335,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -352,7 +352,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Single.error(asyncException))
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -370,7 +370,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -387,7 +387,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Single.error(asyncException))
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -403,7 +403,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -420,7 +420,7 @@ public class RxCacheTest {
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Single.error(asyncException))
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();
@@ -451,7 +451,7 @@ public class RxCacheTest {
 				})
 				.withAsync(async())
 				.fetch()
-				.observeOn(Schedulers.from(EXECUTOR))
+				.observeOn(OBSERVE_ON_SCHEDULER)
 				.subscribe(testObserver);
 
 		testObserver.awaitTerminalEvent();

@@ -13,6 +13,7 @@ import fr.beapp.cache.storage.Storage;
 import fr.beapp.cache.strategy.CacheStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -29,6 +30,7 @@ public class RxCache {
 	protected String defaultSessionName = null;
 	protected long defaultTTLValue = 30;
 	protected TimeUnit defaultTTLTimeUnit = TimeUnit.MINUTES;
+	protected Scheduler defaultScheduler = Schedulers.io();
 
 	/**
 	 * Initialize the cache with {@link SnappyDBStorage} as storage implementation.
@@ -75,6 +77,15 @@ public class RxCache {
 		return this;
 	}
 
+	public Scheduler getDefaultScheduler() {
+		return defaultScheduler;
+	}
+
+	public RxCache withDefaultScheduler(@NonNull Scheduler scheduler) {
+		this.defaultScheduler = scheduler;
+		return this;
+	}
+
 	/**
 	 * Create a new builder to configure data cache resolution strategy for the given key.
 	 *
@@ -93,6 +104,8 @@ public class RxCache {
 		protected long ttlValue;
 		protected TimeUnit ttlTimeUnit;
 		protected String sessionName;
+		protected Scheduler scheduler;
+
 		protected CacheStrategy cacheStrategy = null;
 		protected boolean keepExpiredCache = false;
 		protected Single<T> asyncObservable = Single.never();
@@ -103,6 +116,7 @@ public class RxCache {
 			this.ttlValue = rxCache.getDefaultTTLValue();
 			this.ttlTimeUnit = rxCache.getDefaultTTLTimeUnit();
 			this.sessionName = rxCache.getDefaultSessionName();
+			this.scheduler = rxCache.getDefaultScheduler();
 		}
 
 		/**
@@ -127,6 +141,14 @@ public class RxCache {
 		 */
 		public StrategyBuilder<T> withSession(@Nullable String sessionName) {
 			this.sessionName = sessionName;
+			return this;
+		}
+
+		/**
+		 * Set the scheduler to use for cache observable
+		 */
+		public StrategyBuilder<T> withDefaultScheduler(@NonNull Scheduler scheduler) {
+			this.scheduler = scheduler;
 			return this;
 		}
 
@@ -185,8 +207,7 @@ public class RxCache {
 				cacheStrategy = CacheStrategy.cacheOrAsync(keepExpiredCache, ttlValue, ttlTimeUnit);
 			}
 
-			return cacheStrategy.getStrategyObservable(cacheObservable, asyncObservableCaching)
-					.subscribeOn(Schedulers.io());
+			return cacheStrategy.getStrategyObservable(cacheObservable, asyncObservableCaching);
 		}
 
 		protected Single<CacheWrapper<T>> buildAsyncObservableCaching(@NonNull Single<T> asyncObservable, final String prependedKey) {
@@ -220,7 +241,7 @@ public class RxCache {
 					}
 					return null;
 				}
-			});
+			}).subscribeOn(scheduler);
 		}
 	}
 }
