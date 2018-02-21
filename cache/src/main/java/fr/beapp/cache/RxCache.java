@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
-import fr.beapp.cache.internal.CacheWrapper;
 import fr.beapp.cache.storage.SnappyDBStorage;
 import fr.beapp.cache.storage.Storage;
 import fr.beapp.cache.strategy.CacheStrategy;

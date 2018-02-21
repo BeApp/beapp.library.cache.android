@@ -1,9 +1,10 @@
-package fr.beapp.cache.internal;
+package fr.beapp.cache;
 
 import java.io.Serializable;
 
 public class CacheWrapper<T> implements Serializable {
 
+	private boolean fromCache = false;
 	private long cachedDate;
 	private T data;
 
@@ -37,6 +38,15 @@ public class CacheWrapper<T> implements Serializable {
 		int result = (int) (cachedDate ^ (cachedDate >>> 32));
 		result = 31 * result + (data != null ? data.hashCode() : 0);
 		return result;
+	}
+
+	public boolean isFromCache() {
+		return fromCache;
+	}
+
+	public CacheWrapper<T> setFromCache(boolean fromCache) {
+		this.fromCache = fromCache;
+		return this;
 	}
 
 	public long getCachedDate() {

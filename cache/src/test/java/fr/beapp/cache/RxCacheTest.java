@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 
-import fr.beapp.cache.internal.CacheWrapper;
 import fr.beapp.cache.storage.Storage;
 import fr.beapp.cache.strategy.CacheStrategy;
 import io.reactivex.Flowable;
