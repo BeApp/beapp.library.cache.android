@@ -28,7 +28,7 @@ ext {
     libraryName = 'Beapp Cache'
     libraryGroupId = 'fr.beapp.cache'
     libraryArtifactId = 'cache'
-    libraryVersion = '2.2'
+    libraryVersion = '2.3'
     libraryPackaging = 'aar'
 
     libraryDescription = 'A cache library based on RxJava'
