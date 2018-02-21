@@ -178,7 +178,19 @@ public class RxCache {
 		public Flowable<CacheWrapper<T>> fetchWrapper() {
 			final String prependedKey = sessionName != null ? sessionName + key : key;
 
-			final Single<CacheWrapper<T>> asyncObservableCaching = asyncObservable
+			final Single<CacheWrapper<T>> asyncObservableCaching = buildAsyncObservableCaching(asyncObservable, prependedKey);
+			final Maybe<CacheWrapper<T>> cacheObservable = buildCacheObservable(prependedKey);
+
+			if (cacheStrategy == null) {
+				cacheStrategy = CacheStrategy.cacheOrAsync(keepExpiredCache, ttlValue, ttlTimeUnit);
+			}
+
+			return cacheStrategy.getStrategyObservable(cacheObservable, asyncObservableCaching)
+					.subscribeOn(Schedulers.io());
+		}
+
+		protected Single<CacheWrapper<T>> buildAsyncObservableCaching(@NonNull Single<T> asyncObservable, final String prependedKey) {
+			return asyncObservable
 					.map(new Function<T, CacheWrapper<T>>() {
 						@Override
 						public CacheWrapper<T> apply(@io.reactivex.annotations.NonNull T value) throws Exception {
@@ -191,8 +203,10 @@ public class RxCache {
 							storage.put(prependedKey, value);
 						}
 					});
+		}
 
-			final Maybe<CacheWrapper<T>> cacheObservable = Maybe.fromCallable(new Callable<CacheWrapper<T>>() {
+		protected Maybe<CacheWrapper<T>> buildCacheObservable(@NonNull final String prependedKey) {
+			return Maybe.fromCallable(new Callable<CacheWrapper<T>>() {
 				@Override
 				@SuppressWarnings("unchecked")
 				public CacheWrapper<T> call() throws Exception {
@@ -207,14 +221,6 @@ public class RxCache {
 					return null;
 				}
 			});
-
-			if (cacheStrategy == null) {
-				cacheStrategy = CacheStrategy.cacheOrAsync(keepExpiredCache, ttlValue, ttlTimeUnit);
-			}
-
-			return cacheStrategy.getStrategyObservable(cacheObservable, asyncObservableCaching)
-					.subscribeOn(Schedulers.io());
 		}
-
 	}
 }
