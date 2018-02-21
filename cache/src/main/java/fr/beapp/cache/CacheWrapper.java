@@ -22,6 +22,15 @@ public class CacheWrapper<T> implements Serializable {
 	}
 
 	@Override
+	public String toString() {
+		return "CacheWrapper{" +
+				"fromCache=" + fromCache +
+				", cachedDate=" + cachedDate +
+				", data=" + data +
+				'}';
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
