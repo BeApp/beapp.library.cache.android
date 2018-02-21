@@ -5,6 +5,7 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import fr.beapp.cache.storage.SnappyDBStorage;
@@ -12,8 +13,6 @@ import fr.beapp.cache.storage.Storage;
 import fr.beapp.cache.strategy.CacheStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-import io.reactivex.MaybeEmitter;
-import io.reactivex.MaybeOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -193,23 +192,19 @@ public class RxCache {
 						}
 					});
 
-			final Maybe<CacheWrapper<T>> cacheObservable = Maybe.create(new MaybeOnSubscribe<CacheWrapper<T>>() {
+			final Maybe<CacheWrapper<T>> cacheObservable = Maybe.fromCallable(new Callable<CacheWrapper<T>>() {
 				@Override
 				@SuppressWarnings("unchecked")
-				public void subscribe(@io.reactivex.annotations.NonNull MaybeEmitter<CacheWrapper<T>> emitter) throws Exception {
-					try {
-						CacheWrapper<T> cachedData = storage.get(prependedKey, CacheWrapper.class);
-						if (cachedData != null) {
-							if (cachedData.getData() != null) {
-								emitter.onSuccess(cachedData);
-							} else {
-								storage.delete(prependedKey);
-							}
+				public CacheWrapper<T> call() throws Exception {
+					CacheWrapper<T> cachedData = storage.get(prependedKey, CacheWrapper.class);
+					if (cachedData != null) {
+						if (cachedData.getData() != null) {
+							return cachedData.setFromCache(true);
+						} else {
+							storage.delete(prependedKey);
 						}
-						emitter.onComplete();
-					} catch (Exception e) {
-						emitter.onError(e);
 					}
+					return null;
 				}
 			});
 
