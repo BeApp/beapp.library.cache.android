@@ -3,6 +3,8 @@ package fr.beapp.cache.strategy;
 
 import android.support.annotation.NonNull;
 
+import java.util.Arrays;
+
 import fr.beapp.cache.CacheWrapper;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -16,8 +18,10 @@ public class CacheThenAsyncStrategy extends CacheStrategy {
 
 	@Override
 	public <T> Flowable<CacheWrapper<T>> getStrategyObservable(@NonNull Maybe<CacheWrapper<T>> cacheObservable, @NonNull Single<CacheWrapper<T>> asyncObservable) {
-		return cacheObservable
-				.concatWith(asyncObservable.toMaybe());
+		return Flowable.concatDelayError(Arrays.asList(
+				cacheObservable.toFlowable(),
+				asyncObservable.toFlowable()
+		));
 	}
 
 }

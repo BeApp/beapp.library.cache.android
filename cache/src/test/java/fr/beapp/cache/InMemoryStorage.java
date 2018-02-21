@@ -47,6 +47,12 @@ public class InMemoryStorage implements Storage {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz, @Nullable T defaultValue) {
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		if (cache.containsKey(key)) {
 			return (T) cache.get(key);
 		}
