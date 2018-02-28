@@ -140,23 +140,24 @@ public class SnappyDBStorage implements Storage {
 	@Nullable
 	@Override
 	public synchronized <T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz) {
-		return get(key, clazz, null);
-	}
-
-	@Nullable
-	@Override
-	public synchronized <T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz, @Nullable T defaultValue) {
 		try {
 			if (getDb().exists(key)) {
 				return getDb().get(key, clazz);
 			} else {
-				return defaultValue;
+				return null;
 			}
 		} catch (SnappydbException e) {
 			Logger.warn("Data with key %s couldn't be retrieved from cache. Deleting it", e, key);
 			delete(key);
 		}
-		return defaultValue;
+		return null;
+	}
+
+	@NonNull
+	@Override
+	public synchronized <T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz, @NonNull T defaultValue) {
+		T value = get(key, clazz);
+		return value != null ? value : defaultValue;
 	}
 
 	@Override

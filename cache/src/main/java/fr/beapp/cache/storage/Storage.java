@@ -55,8 +55,8 @@ public interface Storage {
 	 * @param defaultValue The default value to return in case no data was stored with the given key
 	 * @return Actual data if present, <code>defaultValue</code> otherwise
 	 */
-	@Nullable
-	<T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz, @Nullable T defaultValue);
+	@NonNull
+	<T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz, @NonNull T defaultValue);
 
 	/**
 	 * Check if a data was stored with the given key

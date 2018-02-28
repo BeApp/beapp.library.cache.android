@@ -40,13 +40,6 @@ public class InMemoryStorage implements Storage {
 	@Nullable
 	@Override
 	public <T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz) {
-		return get(key, clazz, null);
-	}
-
-	@Nullable
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz, @Nullable T defaultValue) {
 		try {
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
@@ -56,7 +49,15 @@ public class InMemoryStorage implements Storage {
 		if (cache.containsKey(key)) {
 			return (T) cache.get(key);
 		}
-		return defaultValue;
+		return null;
+	}
+
+	@NonNull
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends Serializable> T get(@NonNull String key, @NonNull Class<T> clazz, @NonNull T defaultValue) {
+		T value = get(key, clazz);
+		return value != null ? value : defaultValue;
 	}
 
 	@Override
