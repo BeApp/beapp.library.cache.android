@@ -1,1 +1,1 @@
-include ':cache'
+include ':cache-core', ':cache-storage-snappydb'

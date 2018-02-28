@@ -1,0 +1,17 @@
+apply plugin: 'org.sonarqube'
+sonarqube {
+    androidVariant 'debug'
+    properties {
+        property 'sonar.host.url', 'https://sonar.beapp.fr'
+        property 'sonar.projectKey', "${libraryGroupId}:android"
+        property 'sonar.projectName', "${libraryName} - Android"
+        property 'sonar.projectDescription', "${libraryDescription}"
+        property 'sonar.projectVersion', "${libraryVersion}"
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.exclusions', '**/*Test.java'
+
+        def appProject = project(':cache')
+        def appProjectBuildDir = appProject.buildDir
+        property 'sonar.junit.reportsPath', "$appProjectBuildDir/test-results/debug"
+    }
+}
