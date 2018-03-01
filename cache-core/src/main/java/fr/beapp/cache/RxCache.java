@@ -165,7 +165,7 @@ public class RxCache {
 		}
 
 		/**
-		 * Convert this resolution data strategy to a Rx {@link Maybe}
+		 * Convert this resolution data strategy to a Rx {@link Flowable}
 		 */
 		public Flowable<T> fetch() {
 			return fetchWrapper()
@@ -178,13 +178,11 @@ public class RxCache {
 		}
 
 		/**
-		 * Convert this resolution data strategy to a Rx {@link Maybe}
+		 * Convert this resolution data strategy to a Rx {@link Flowable}
 		 */
 		public Flowable<CacheWrapper<T>> fetchWrapper() {
-			final String prependedKey = sessionName != null ? sessionName + key : key;
-
-			final Single<CacheWrapper<T>> asyncObservableCaching = buildAsyncObservableCaching(asyncObservable, prependedKey);
-			final Maybe<CacheWrapper<T>> cacheObservable = buildCacheObservable(prependedKey);
+			final Single<CacheWrapper<T>> asyncObservableCaching = buildAsyncObservableCaching(asyncObservable, sessionName, key);
+			final Maybe<CacheWrapper<T>> cacheObservable = buildCacheObservable(sessionName, key);
 
 			if (cacheStrategy == null) {
 				cacheStrategy = CacheStrategy.cacheOrAsync(keepExpiredCache, ttlValue, ttlTimeUnit);
@@ -193,7 +191,7 @@ public class RxCache {
 			return cacheStrategy.getStrategyObservable(cacheObservable, asyncObservableCaching);
 		}
 
-		protected Single<CacheWrapper<T>> buildAsyncObservableCaching(@NotNull Single<T> asyncObservable, final String prependedKey) {
+		protected Single<CacheWrapper<T>> buildAsyncObservableCaching(@NotNull Single<T> asyncObservable, @Nullable final String sessionName, @NotNull final String key) {
 			return asyncObservable
 					.map(new Function<T, CacheWrapper<T>>() {
 						@Override
@@ -204,22 +202,22 @@ public class RxCache {
 					.doOnSuccess(new Consumer<CacheWrapper<T>>() {
 						@Override
 						public void accept(@io.reactivex.annotations.NonNull CacheWrapper<T> value) throws Exception {
-							storage.put(prependedKey, value);
+							storage.put(sessionName, key, value);
 						}
 					});
 		}
 
-		protected Maybe<CacheWrapper<T>> buildCacheObservable(@NotNull final String prependedKey) {
+		protected Maybe<CacheWrapper<T>> buildCacheObservable(@Nullable final String sessionName, @NotNull final String key) {
 			return Maybe.fromCallable(new Callable<CacheWrapper<T>>() {
 				@Override
 				@SuppressWarnings("unchecked")
 				public CacheWrapper<T> call() throws Exception {
-					CacheWrapper<T> cachedData = storage.get(prependedKey, CacheWrapper.class);
+					CacheWrapper<T> cachedData = (CacheWrapper<T>) storage.get(sessionName, key, Object.class);
 					if (cachedData != null) {
 						if (cachedData.getData() != null) {
 							return cachedData.setFromCache(true);
 						} else {
-							storage.delete(prependedKey);
+							storage.delete(sessionName, key);
 						}
 					}
 					return null;

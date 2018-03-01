@@ -3,7 +3,6 @@ package fr.beapp.cache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +10,12 @@ import fr.beapp.cache.storage.Storage;
 
 public class InMemoryStorage implements Storage {
 
-	private Map<String, Serializable> cache = new HashMap<>();
+	private Map<String, CacheWrapper<?>> cache = new HashMap<>();
+
+	@Override
+	public void close() {
+		// Nothing to do
+	}
 
 	@Override
 	public void clear() {
@@ -19,35 +23,43 @@ public class InMemoryStorage implements Storage {
 	}
 
 	@Override
-	public void clear(@NotNull String keyPrefix) {
+	public synchronized void clear(@NotNull String... sessions) {
+		for (String session : sessions) {
+			clear(session, "");
+		}
+	}
+
+	@Override
+	public void clear(@Nullable String session, @NotNull String keyPrefix) {
 		for (String key : cache.keySet()) {
-			if (key.startsWith(keyPrefix)) {
+			if (key.startsWith(buildKey(session, keyPrefix))) {
 				cache.remove(key);
 			}
 		}
 	}
 
 	@Override
-	public void put(@NotNull String key, @Nullable Serializable value) {
-		cache.put(key, value);
+	public <T> void put(@Nullable String session, @NotNull String key, @Nullable CacheWrapper<T> value) {
+		cache.put(buildKey(session, key), value);
 	}
 
 	@Override
-	public void delete(@NotNull String key) {
-		cache.remove(key);
+	public void delete(@Nullable String session, @NotNull String key) {
+		cache.remove(buildKey(session, key));
 	}
 
 	@Nullable
 	@Override
-	public <T extends Serializable> T get(@NotNull String key, @NotNull Class<T> clazz) {
+	public <T> CacheWrapper<T> get(@Nullable String session, @NotNull String key, @NotNull Class<T> clazz) {
 		try {
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
-		if (cache.containsKey(key)) {
-			return (T) cache.get(key);
+		String finalKey = buildKey(session, key);
+		if (cache.containsKey(finalKey)) {
+			return (CacheWrapper<T>) cache.get(finalKey);
 		}
 		return null;
 	}
@@ -55,14 +67,18 @@ public class InMemoryStorage implements Storage {
 	@NotNull
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends Serializable> T get(@NotNull String key, @NotNull Class<T> clazz, @NotNull T defaultValue) {
-		T value = get(key, clazz);
-		return value != null ? value : defaultValue;
+	public <T> CacheWrapper<T> get(@Nullable String session, @NotNull String key, @NotNull Class<T> clazz, @NotNull T defaultValue) {
+		CacheWrapper<T> value = get(session, key, clazz);
+		return value != null ? value : new CacheWrapper(defaultValue);
 	}
 
 	@Override
-	public boolean exists(@NotNull String key) {
-		return key.contains(key);
+	public boolean exists(@Nullable String session, @NotNull String key) {
+		return cache.containsKey(buildKey(session, key));
+	}
+
+	protected String buildKey(@Nullable String session, @NotNull String key) {
+		return session != null && !session.isEmpty() ? session + "_" + key : "global" + key;
 	}
 
 }

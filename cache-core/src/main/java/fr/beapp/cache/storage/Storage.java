@@ -3,7 +3,7 @@ package fr.beapp.cache.storage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.Serializable;
+import fr.beapp.cache.CacheWrapper;
 
 /**
  * A storage is the part of the system which will store and retrieve data from cache.
@@ -11,57 +11,75 @@ import java.io.Serializable;
 public interface Storage {
 
 	/**
+	 * Close storage
+	 */
+	void close();
+
+	/**
 	 * Clear all data from cache
 	 */
 	void clear();
 
 	/**
-	 * Clear all data from cache with key starting with the given prefix
+	 * Clear all data from cache for the given session
 	 *
+	 * @param sessions The sessions to use
+	 */
+	void clear(@NotNull String... sessions);
+
+	/**
+	 * Clear all data from cache with given session and key starting with the given prefix
+	 *
+	 * @param session   The session to use
 	 * @param keyPrefix The key prefix to search
 	 */
-	void clear(@NotNull String keyPrefix);
+	void clear(@Nullable String session, @NotNull String keyPrefix);
 
 	/**
-	 * Remove a specific data from cache based on the given key
+	 * Remove a specific data from cache based on the given session and key
 	 *
-	 * @param key The key to use to remove data
+	 * @param session The session to use
+	 * @param key     The key to use to remove data
 	 */
-	void delete(@NotNull String key);
+	void delete(@Nullable String session, @NotNull String key);
 
 	/**
-	 * Add a new data in cache
+	 * Add a new data in cache with the given session and key
 	 *
-	 * @param key   The key to use to store this data
-	 * @param value The data to add in cache
+	 * @param session The session to use
+	 * @param key     The key to use to store this data
+	 * @param value   The data to add in cache
 	 */
-	void put(@NotNull String key, @Nullable Serializable value);
+	<T> void put(@Nullable String session, @NotNull String key, @Nullable CacheWrapper<T> value);
 
 	/**
-	 * Retrieve a data from cache based on the given key
+	 * Retrieve a data from cache based on the given session and key
 	 *
-	 * @param key   The key to use to retrieve the data
-	 * @param clazz The class on which the data must be casted
-	 * @return Actual data if present, <code>null</code> otherwise
+	 * @param session The session to use
+	 * @param key     The key to use to retrieve the data
+	 * @param clazz   The class on which the data must be casted
+	 * @return Actual data if present, <code>CacheWrapper(null)</code> otherwise
 	 */
-	@Nullable <T extends Serializable> T get(@NotNull String key, @NotNull Class<T> clazz);
+	@Nullable <T> CacheWrapper<T> get(@Nullable String session, @NotNull String key, @NotNull Class<T> clazz);
 
 	/**
-	 * Retrieve a data from cache based on the given key. If nothing was stored in this key, return the given defualt value
+	 * Retrieve a data from cache based on the given session and key. If nothing was stored in this key, return the given default value
 	 *
+	 * @param session      The session to use
 	 * @param key          The key to use to retrieve the data
 	 * @param clazz        The class on which the data must be casted
 	 * @param defaultValue The default value to return in case no data was stored with the given key
-	 * @return Actual data if present, <code>defaultValue</code> otherwise
+	 * @return Actual data if present, <code>CacheWrapper(defaultValue)</code> otherwise
 	 */
-	@NotNull <T extends Serializable> T get(@NotNull String key, @NotNull Class<T> clazz, @NotNull T defaultValue);
+	@NotNull <T> CacheWrapper<T> get(@Nullable String session, @NotNull String key, @NotNull Class<T> clazz, @NotNull T defaultValue);
 
 	/**
-	 * Check if a data was stored with the given key
+	 * Check if a data was stored with the given session and key
 	 *
-	 * @param key The key to check
+	 * @param session The session to use
+	 * @param key     The key to check
 	 * @return <code>true</code> if a data was stored with this key (even if it's null), <code>false</code> otherwise
 	 */
-	boolean exists(@NotNull String key);
+	boolean exists(@Nullable String session, @NotNull String key);
 
 }

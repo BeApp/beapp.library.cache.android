@@ -34,11 +34,11 @@ public class RxCacheTest {
 	};
 
 	private static final Scheduler OBSERVE_ON_SCHEDULER = Schedulers.trampoline();
-
 	private static final int MINUTES_60 = 3600 * 1000;
 
 	private final Storage storage = new InMemoryStorage();
 	private final RxCache rxCache = new RxCache(storage);
+	private final String session = null;
 	private TestSubscriber<Object> testObserver;
 
 	@Before
@@ -56,7 +56,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_cacheThenAsync_noCache_asyncOk() throws Exception {
-		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(async())
@@ -73,7 +73,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_cacheThenAsync_noCache_asyncError() throws Exception {
-		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Single.error(asyncException))
@@ -89,7 +89,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_cacheThenAsync_cachedValue_asyncOk() throws Exception {
-		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(async())
@@ -106,7 +106,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_cacheThenAsync_cachedValue_asyncError() throws Exception {
-		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheThenAsync())
 				.withAsync(Single.error(asyncException))
@@ -125,7 +125,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_cacheOrAsync_noCache_asyncOk() throws Exception {
-		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(async())
@@ -142,7 +142,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_cacheOrAsync_noCache_asyncError() throws Exception {
-		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.error(asyncException))
@@ -158,7 +158,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_cacheOrAsync_expiredCache_asyncOk() throws Exception {
-		storage.put("key", new CacheWrapper<>(System.currentTimeMillis() - MINUTES_60, CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(System.currentTimeMillis() - MINUTES_60, CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(async())
@@ -175,7 +175,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_cacheOrAsync_expiredCache_asyncError() throws Exception {
-		storage.put("key", new CacheWrapper<>(System.currentTimeMillis() - MINUTES_60, CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(System.currentTimeMillis() - MINUTES_60, CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.error(asyncException))
@@ -192,7 +192,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_cacheOrAsync_cachedValue_asyncOk() throws Exception {
-		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(async())
@@ -209,7 +209,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_cacheOrAsync_cachedValue_asyncError() throws Exception {
-		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.cacheOrAsync())
 				.withAsync(Single.error(asyncException))
@@ -228,7 +228,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_justCache_noCache_asyncOk() throws Exception {
-		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(async())
@@ -244,7 +244,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_justCache_noCache_asyncError() throws Exception {
-		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(Single.error(asyncException))
@@ -260,7 +260,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_justCache_cachedValue_asyncOk() throws Exception {
-		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(async())
@@ -277,7 +277,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_justCache_cachedValue_asyncError() throws Exception {
-		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.justCache())
 				.withAsync(async())
@@ -296,7 +296,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_noCache_noCache_asyncOk() throws Exception {
-		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(async())
@@ -313,7 +313,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_noCache_noCache_asyncError() throws Exception {
-		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Single.error(asyncException))
@@ -329,7 +329,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_noCache_cachedValue_asyncOk() throws Exception {
-		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(async())
@@ -346,7 +346,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_noCache_cachedValue_asyncError() throws Exception {
-		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.noCache())
 				.withAsync(Single.error(asyncException))
@@ -364,7 +364,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_asyncOrCache_noCache_asyncOk() throws Exception {
-		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(async())
@@ -381,7 +381,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_asyncOrCache_noCache_asyncError() throws Exception {
-		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Single.error(asyncException))
@@ -397,7 +397,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_asyncOrCache_cachedValue_asyncOk() throws Exception {
-		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(async())
@@ -414,7 +414,7 @@ public class RxCacheTest {
 
 	@Test
 	public void testExecuteRx_asyncOrCache_cachedValue_asyncError() throws Exception {
-		storage.put("key", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "key", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(CacheStrategy.asyncOrCache())
 				.withAsync(Single.error(asyncException))
@@ -440,7 +440,7 @@ public class RxCacheTest {
 			}
 		};
 
-		storage.put("otherKey", new CacheWrapper<>(CACHE_OBJECT));
+		storage.put(session, "otherKey", new CacheWrapper<>(CACHE_OBJECT));
 		rxCache.fromKey("key")
 				.withStrategy(new CacheStrategy("CUSTOM_STRATEGY") {
 					@Override

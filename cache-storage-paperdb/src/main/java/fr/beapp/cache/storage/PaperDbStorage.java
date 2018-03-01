@@ -5,9 +5,10 @@ import android.content.Context;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.Serializable;
 import java.util.List;
 
+import fr.beapp.cache.CacheWrapper;
+import io.paperdb.Book;
 import io.paperdb.Paper;
 
 /**
@@ -22,43 +23,59 @@ public class PaperDbStorage implements Storage {
 	}
 
 	@Override
+	public void close() {
+		// Nothing to do
+	}
+
+	@Override
 	public synchronized void clear() {
 		Paper.book().destroy();
 	}
 
 	@Override
-	public synchronized void clear(@NotNull String keyPrefix) {
-		List<String> keys = Paper.book().getAllKeys();
-		for (String key : keys) {
-			Paper.book().delete(key);
+	public synchronized void clear(@NotNull String... sessions) {
+		for (String session : sessions) {
+			getBook(session).destroy();
 		}
 	}
 
 	@Override
-	public synchronized void put(@NotNull String key, @Nullable Serializable value) {
-		Paper.book().write(key, value);
+	public synchronized void clear(@Nullable String session, @NotNull String keyPrefix) {
+		List<String> keys = getBook(session).getAllKeys();
+		for (String key : keys) {
+			getBook(session).delete(key);
+		}
 	}
 
 	@Override
-	public synchronized void delete(@NotNull String key) {
-		Paper.book().delete(key);
+	public synchronized <T> void put(@Nullable String session, @NotNull String key, @Nullable CacheWrapper<T> value) {
+		getBook(session).write(key, value);
+	}
+
+	@Override
+	public synchronized void delete(@Nullable String session, @NotNull String key) {
+		getBook(session).delete(key);
 	}
 
 	@Nullable
 	@Override
-	public synchronized <T extends Serializable> T get(@NotNull String key, @NotNull Class<T> clazz) {
-		return Paper.book().read(key);
+	public synchronized <T> CacheWrapper<T> get(@Nullable String session, @NotNull String key, @NotNull Class<T> clazz) {
+		return getBook(session).read(key);
 	}
 
 	@NotNull
 	@Override
-	public synchronized <T extends Serializable> T get(@NotNull String key, @NotNull Class<T> clazz, @NotNull T defaultValue) {
-		return Paper.book().read(key, defaultValue);
+	public synchronized <T> CacheWrapper<T> get(@Nullable String session, @NotNull String key, @NotNull Class<T> clazz, @NotNull T defaultValue) {
+		return getBook(session).read(key, new CacheWrapper<>(defaultValue));
 	}
 
 	@Override
-	public synchronized boolean exists(@NotNull String key) {
-		return Paper.book().contains(key);
+	public synchronized boolean exists(@Nullable String session, @NotNull String key) {
+		return getBook(session).contains(key);
+	}
+
+	protected Book getBook(@Nullable String session) {
+		return session != null && !session.isEmpty() ? Paper.book(session) : getBook(session);
 	}
 
 }

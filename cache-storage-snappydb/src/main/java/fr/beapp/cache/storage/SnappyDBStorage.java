@@ -10,8 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.Serializable;
 
+import fr.beapp.cache.CacheWrapper;
 import fr.beapp.logger.Logger;
 
 /**
@@ -20,19 +20,117 @@ import fr.beapp.logger.Logger;
  * This library relies on <a href="https://github.com/EsotericSoftware/kryo">Kryo</a> in order to provide fast serialization.
  */
 public class SnappyDBStorage implements Storage {
-
 	protected final Context context;
+
 	protected DB db;
 
 	public SnappyDBStorage(@NotNull Context context) {
 		this.context = context;
 	}
 
-	public DB getDb() {
+	@Override
+	public synchronized void close() {
+		if (db != null) {
+			try {
+				Logger.trace("Closing SnappyDB");
+
+				db.close();
+				db = null;
+			} catch (SnappydbException e) {
+				Logger.error("Can't close cache database", e);
+			}
+		}
+	}
+
+	@Override
+	public synchronized void clear() {
+		try {
+			getDb().destroy();
+		} catch (SnappydbException e) {
+			Logger.warn("Couldn't clear cache", e);
+		}
+	}
+
+	@Override
+	public synchronized void clear(@NotNull String... sessions) {
+		for (String session : sessions) {
+			clear(session, "");
+		}
+	}
+
+	@Override
+	public synchronized void clear(@Nullable String session, @NotNull String keyPrefix) {
+		try {
+			String[] keys = getDb().findKeys(buildKey(session, keyPrefix));
+			for (String key : keys) {
+				getDb().del(key);
+			}
+		} catch (SnappydbException e) {
+			Logger.warn("Couldn't clear keys with prefix %s", e, keyPrefix);
+		}
+	}
+
+	@Override
+	public synchronized <T> void put(@Nullable String session, @NotNull String key, @Nullable CacheWrapper<T> value) {
+		String finalKey = buildKey(session, key);
+		try {
+			getDb().put(key, value);
+		} catch (SnappydbException e) {
+			Logger.warn("Data with key %s couldn't be put in cache", e, finalKey);
+		}
+	}
+
+	@Override
+	public synchronized void delete(@Nullable String session, @NotNull String key) {
+		String finalKey = buildKey(session, key);
+		try {
+			getDb().del(finalKey);
+		} catch (SnappydbException e) {
+			Logger.warn("Data with key %s couldn't be deleted from cache", e, finalKey);
+		}
+	}
+
+	@Nullable
+	@Override
+	@SuppressWarnings("unchecked")
+	public synchronized <T> CacheWrapper<T> get(@Nullable String session, @NotNull String key, @NotNull Class<T> clazz) {
+		String finalKey = buildKey(session, key);
+		try {
+			if (getDb().exists(finalKey)) {
+				return getDb().get(finalKey, CacheWrapper.class);
+			} else {
+				return null;
+			}
+		} catch (SnappydbException e) {
+			Logger.warn("Data with key %s couldn't be retrieved from cache. Deleting it", e, finalKey);
+			delete(session, key);
+		}
+		return null;
+	}
+
+	@NotNull
+	@Override
+	public synchronized <T> CacheWrapper<T> get(@Nullable String session, @NotNull String key, @NotNull Class<T> clazz, @NotNull T defaultValue) {
+		CacheWrapper<T> value = get(session, key, clazz);
+		return value != null ? value : new CacheWrapper<>(defaultValue);
+	}
+
+	@Override
+	public synchronized boolean exists(@Nullable String session, @NotNull String key) {
+		String finalKey = buildKey(session, key);
+		try {
+			return getDb().exists(finalKey);
+		} catch (SnappydbException e) {
+			Logger.warn("Can't check if there is data for with key %s", e, finalKey);
+		}
+		return false;
+	}
+
+	protected DB getDb() {
 		return getDb(false);
 	}
 
-	public synchronized DB getDb(boolean wasForceDeleted) {
+	protected synchronized DB getDb(boolean wasForceDeleted) {
 		if (db != null)
 			return db;
 
@@ -66,9 +164,9 @@ public class SnappyDBStorage implements Storage {
 	}
 
 	/**
-	 * Open a SNappyDB instance with the given path and name
+	 * Open a SnappyDB instance with the given path and name
 	 *
-	 * @param path         The path where the database will bestored
+	 * @param path         The path where the database will be stored
 	 * @param databaseName The database name to use
 	 * @return A {@link DB} instance
 	 * @throws SnappydbException if SnappyDB couldn't be initialized
@@ -80,92 +178,8 @@ public class SnappyDBStorage implements Storage {
 				.build();
 	}
 
-	/**
-	 * Properly close SnappyDB instance
-	 */
-	public synchronized void closeDb() {
-		if (db != null) {
-			try {
-				Logger.trace("Closing SnappyDB");
-
-				db.close();
-				db = null;
-			} catch (SnappydbException e) {
-				Logger.error("Can't close cache database", e);
-			}
-		}
-	}
-
-	@Override
-	public synchronized void clear() {
-		try {
-			getDb().destroy();
-		} catch (SnappydbException e) {
-			Logger.warn("Couldn't clear cache", e);
-		}
-	}
-
-	@Override
-	public synchronized void clear(@NotNull String keyPrefix) {
-		try {
-			String[] keys = getDb().findKeys(keyPrefix);
-			for (String key : keys) {
-				getDb().del(key);
-			}
-		} catch (SnappydbException e) {
-			Logger.warn("Couldn't clear keys with prefix %s", e, keyPrefix);
-		}
-	}
-
-	@Override
-	public synchronized void put(@NotNull String key, @Nullable Serializable value) {
-		try {
-			getDb().put(key, value);
-		} catch (SnappydbException e) {
-			Logger.warn("Data with key %s couldn't be put in cache", e, key);
-		}
-	}
-
-	@Override
-	public synchronized void delete(@NotNull String key) {
-		try {
-			getDb().del(key);
-		} catch (SnappydbException e) {
-			Logger.warn("Data with key %s couldn't be deleted from cache", e, key);
-		}
-	}
-
-	@Nullable
-	@Override
-	public synchronized <T extends Serializable> T get(@NotNull String key, @NotNull Class<T> clazz) {
-		try {
-			if (getDb().exists(key)) {
-				return getDb().get(key, clazz);
-			} else {
-				return null;
-			}
-		} catch (SnappydbException e) {
-			Logger.warn("Data with key %s couldn't be retrieved from cache. Deleting it", e, key);
-			delete(key);
-		}
-		return null;
-	}
-
-	@NotNull
-	@Override
-	public synchronized <T extends Serializable> T get(@NotNull String key, @NotNull Class<T> clazz, @NotNull T defaultValue) {
-		T value = get(key, clazz);
-		return value != null ? value : defaultValue;
-	}
-
-	@Override
-	public synchronized boolean exists(@NotNull String key) {
-		try {
-			return getDb().exists(key);
-		} catch (SnappydbException e) {
-			Logger.warn("Can't check if there is data for with key %s", e, key);
-		}
-		return false;
+	protected String buildKey(@Nullable String session, @NotNull String key) {
+		return session != null && !session.isEmpty() ? session + "_" + key : "global" + key;
 	}
 
 }
