@@ -14,11 +14,11 @@ android {
 }
 
 ext {
-    libraryName = 'Beapp Cache - Storage Snappydb'
-    libraryArtifactId = 'cache-storage-snappydb'
+    libraryName = 'Beapp Cache - Storage PaperDb'
+    libraryArtifactId = 'cache-storage-paperdb'
     libraryPackaging = 'jar'
 
-    libraryDescription = 'A Snappydb storage implementation for cache library'
+    libraryDescription = 'A PaperDb storage implementation for cache library'
 }
 
 repositories {
@@ -30,8 +30,7 @@ repositories {
 dependencies {
     api project(':cache-core')
 
-    implementation 'fr.beapp.logger:logger:1.0'
-    implementation 'com.snappydb:snappydb-lib:0.5.2'
+    implementation 'io.paperdb:paperdb:2.6'
 
     testImplementation 'junit:junit:4.12'
 }
