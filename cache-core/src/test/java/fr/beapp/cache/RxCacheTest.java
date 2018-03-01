@@ -1,11 +1,13 @@
 package fr.beapp.cache;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
+import fr.beapp.cache.storage.InMemoryStorage;
 import fr.beapp.cache.storage.Storage;
 import fr.beapp.cache.strategy.CacheStrategy;
 import io.reactivex.Flowable;
@@ -36,7 +38,19 @@ public class RxCacheTest {
 	private static final Scheduler OBSERVE_ON_SCHEDULER = Schedulers.trampoline();
 	private static final int MINUTES_60 = 3600 * 1000;
 
-	private final Storage storage = new InMemoryStorage();
+	private final Storage storage = new InMemoryStorage(false) {
+		@Nullable
+		@Override
+		public <T> CacheWrapper<T> get(@Nullable String session, @NotNull String key, @NotNull Class<T> clazz) {
+			// Simulate a little latency
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return super.get(session, key, clazz);
+		}
+	};
 	private final RxCache rxCache = new RxCache(storage);
 	private final String session = null;
 	private TestSubscriber<Object> testObserver;

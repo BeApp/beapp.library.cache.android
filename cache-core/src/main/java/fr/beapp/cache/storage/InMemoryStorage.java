@@ -1,16 +1,27 @@
-package fr.beapp.cache;
+package fr.beapp.cache.storage;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
-import fr.beapp.cache.storage.Storage;
+import fr.beapp.cache.CacheWrapper;
 
+/**
+ * An in-memory {@link Storage} implementation based on a {@link Map}.
+ */
 public class InMemoryStorage implements Storage {
+	private final Map<String, CacheWrapper<?>> cache;
 
-	private Map<String, CacheWrapper<?>> cache = new HashMap<>();
+	public InMemoryStorage(boolean useWeekReferences) {
+		if (useWeekReferences) {
+			cache = new WeakHashMap<>();
+		} else {
+			cache = new HashMap<>();
+		}
+	}
 
 	@Override
 	public void close() {
@@ -51,12 +62,6 @@ public class InMemoryStorage implements Storage {
 	@Nullable
 	@Override
 	public <T> CacheWrapper<T> get(@Nullable String session, @NotNull String key, @NotNull Class<T> clazz) {
-		try {
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
 		String finalKey = buildKey(session, key);
 		if (cache.containsKey(finalKey)) {
 			return (CacheWrapper<T>) cache.get(finalKey);
@@ -78,7 +83,7 @@ public class InMemoryStorage implements Storage {
 	}
 
 	protected String buildKey(@Nullable String session, @NotNull String key) {
-		return session != null && !session.isEmpty() ? session + "_" + key : "global" + key;
+		return session != null && !session.isEmpty() ? session + "_" + key : "global_" + key;
 	}
 
 }
