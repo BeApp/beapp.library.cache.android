@@ -1,1 +1,1 @@
-include ':cache-core', ':cache-storage-snappydb', ':cache-storage-paperdb', ':sample-android'
+include ':cache-core', ':cache-storage-snappydb', ':cache-storage-paperdb'
