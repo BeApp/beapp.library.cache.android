@@ -1,0 +1,40 @@
+apply plugin: 'com.android.library'
+android {
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 27
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+}
+
+ext {
+    libraryName = 'Beapp Cache - Storage Snappydb'
+    libraryArtifactId = 'cache-storage-snappydb'
+    libraryPackaging = 'jar'
+
+    libraryDescription = 'A Snappydb storage implementation for cache library'
+}
+
+repositories {
+    google()
+    jcenter()
+    maven { url 'http://repository.beapp.fr/libs-release-local' }
+}
+
+dependencies {
+    api project(':cache-core')
+
+    implementation 'fr.beapp.logger:logger:1.0'
+    implementation 'com.snappydb:snappydb-lib:0.5.2'
+
+    testImplementation 'junit:junit:4.12'
+}
+
+apply from: '../sonar.gradle'
+apply from: 'https://bitbucket.org/beappers/beapp.gradle/raw/master/publish-library.gradle'

@@ -1,22 +1,31 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
     repositories {
-        google()
         jcenter()
+        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.1'
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.2'
+    }
+    ext {
+        libraryGroupId = 'fr.beapp.cache'
+        libraryVersion = '2.4'
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        siteUrl = 'https://bitbucket.org/beappers/beapp.cache.andro'
+        gitUrl = 'git@bitbucket.org:beappers/beapp.cache.andro.git'
+
+        developerId = 'dvilleneuve'
+        developerName = 'Damien Villeneuve'
+        developerEmail = 'd.villeneuve@beapp.fr'
+
+        licenseName = 'The Apache Software License, Version 2.0'
+        licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        allLicenses = ["Apache-2.0"]
     }
 }
 
 allprojects {
     repositories {
-        google()
         jcenter()
     }
 }

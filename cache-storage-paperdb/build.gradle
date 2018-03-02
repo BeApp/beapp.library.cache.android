@@ -1,0 +1,45 @@
+apply plugin: 'com.android.library'
+android {
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 27
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+    sourceSets {
+        test {
+            java.srcDir project(':cache-core').file("src/test/java")
+        }
+    }
+}
+
+ext {
+    libraryName = 'Beapp Cache - Storage PaperDb'
+    libraryArtifactId = 'cache-storage-paperdb'
+    libraryPackaging = 'jar'
+
+    libraryDescription = 'A PaperDb storage implementation for cache library'
+}
+
+repositories {
+    google()
+    jcenter()
+    maven { url 'http://repository.beapp.fr/libs-release-local' }
+}
+
+dependencies {
+    api project(':cache-core')
+
+    implementation 'io.paperdb:paperdb:2.6'
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation "org.robolectric:robolectric:3.7.1"
+}
+
+apply from: '../sonar.gradle'
+apply from: 'https://bitbucket.org/beappers/beapp.gradle/raw/master/publish-library.gradle'
