@@ -102,7 +102,7 @@ public class PaperDbStorage implements Storage {
 	}
 
 	protected Book getBook(@Nullable String session) {
-		return session != null && !session.isEmpty() ? Paper.book(session) : getBook(session);
+		return session != null && !session.isEmpty() ? Paper.book(session) : Paper.book();
 	}
 
 }
