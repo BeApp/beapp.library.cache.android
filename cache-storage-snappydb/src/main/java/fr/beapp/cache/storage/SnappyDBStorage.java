@@ -43,6 +43,35 @@ public class SnappyDBStorage implements Storage {
 	}
 
 	@Override
+	public int count() {
+		try {
+			return getDb().countKeys("");
+		} catch (SnappydbException e) {
+			Logger.warn("Couldn't count cached values", e);
+		}
+		return 0;
+	}
+
+	@Override
+	public int count(@NotNull String[] sessions) {
+		int count = 0;
+		for (String session : sessions) {
+			count += count(session, "");
+		}
+		return count;
+	}
+
+	@Override
+	public int count(@NotNull String session, @NotNull String keyPrefix) {
+		try {
+			return getDb().countKeys(buildKey(session, keyPrefix));
+		} catch (SnappydbException e) {
+			Logger.warn("Couldn't count cached values", e);
+		}
+		return 0;
+	}
+
+	@Override
 	public synchronized void clear() {
 		try {
 			getDb().destroy();

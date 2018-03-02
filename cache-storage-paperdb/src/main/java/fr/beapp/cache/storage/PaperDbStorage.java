@@ -28,6 +28,33 @@ public class PaperDbStorage implements Storage {
 	}
 
 	@Override
+	public int count() {
+		return Paper.book().getAllKeys().size();
+	}
+
+	@Override
+	public int count(@NotNull String[] sessions) {
+		int count = 0;
+		for (String session : sessions) {
+			count += Paper.book(session).getAllKeys().size();
+		}
+		return count;
+	}
+
+	@Override
+	public int count(@NotNull String session, @NotNull String keyPrefix) {
+		List<String> allKeys = Paper.book(session).getAllKeys();
+
+		int count = 0;
+		for (String key : allKeys) {
+			if (key.startsWith(keyPrefix)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	@Override
 	public synchronized void clear() {
 		Paper.book().destroy();
 	}

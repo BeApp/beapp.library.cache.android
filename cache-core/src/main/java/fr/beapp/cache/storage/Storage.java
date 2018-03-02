@@ -16,12 +16,31 @@ public interface Storage {
 	void close();
 
 	/**
+	 * Count cached values
+	 */
+	int count();
+
+	/**
+	 * Count cached values for the given sessions
+	 *
+	 * @param sessions The sessions to use
+	 */
+	int count(@NotNull String... sessions);
+
+	/**
+	 * Count cached values for the given session and key starting with the given prefix
+	 *
+	 * @param session The sessions to use
+	 */
+	int count(@NotNull String session, @NotNull String keyPrefix);
+
+	/**
 	 * Clear all data from cache
 	 */
 	void clear();
 
 	/**
-	 * Clear all data from cache for the given session
+	 * Clear all data from cache for the given sessions
 	 *
 	 * @param sessions The sessions to use
 	 */

@@ -4,7 +4,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import fr.beapp.cache.CacheWrapper;
@@ -29,6 +32,34 @@ public class InMemoryStorage implements Storage {
 	}
 
 	@Override
+	public int count() {
+		return cache.size();
+	}
+
+	@Override
+	public int count(@NotNull String[] sessions) {
+		int count = 0;
+		for (String session : sessions) {
+			count += count(session, "");
+		}
+		return count;
+	}
+
+	@Override
+	public int count(@NotNull String session, @NotNull String keyPrefix) {
+		Set<String> allKeys = cache.keySet();
+		String finalKeyPrefix = buildKey(session, keyPrefix);
+
+		int count = 0;
+		for (String key : allKeys) {
+			if (key.startsWith(finalKeyPrefix)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	@Override
 	public void clear() {
 		cache.clear();
 	}
@@ -42,7 +73,8 @@ public class InMemoryStorage implements Storage {
 
 	@Override
 	public void clear(@Nullable String session, @NotNull String keyPrefix) {
-		for (String key : cache.keySet()) {
+		List<String> keys = new LinkedList<>(cache.keySet());
+		for (String key : keys) {
 			if (key.startsWith(buildKey(session, keyPrefix))) {
 				cache.remove(key);
 			}
