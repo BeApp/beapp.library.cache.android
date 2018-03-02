@@ -11,6 +11,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
     }
+    sourceSets {
+        test {
+            java.srcDir project(':cache-core').file("src/test/java")
+        }
+    }
 }
 
 ext {
@@ -33,6 +38,7 @@ dependencies {
     implementation 'io.paperdb:paperdb:2.6'
 
     testImplementation 'junit:junit:4.12'
+    testImplementation "org.robolectric:robolectric:3.7.1"
 }
 
 apply from: '../sonar.gradle'

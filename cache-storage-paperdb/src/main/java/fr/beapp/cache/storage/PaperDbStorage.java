@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 import fr.beapp.cache.CacheWrapper;
 import io.paperdb.Book;
@@ -18,6 +19,8 @@ import io.paperdb.Paper;
  */
 public class PaperDbStorage implements Storage {
 
+	private static final String DEFAULT_PAPER_BOOK = "io.paperdb";
+
 	public PaperDbStorage(@NotNull Context context) {
 		Paper.init(context);
 	}
@@ -29,21 +32,22 @@ public class PaperDbStorage implements Storage {
 
 	@Override
 	public int count() {
-		return Paper.book().getAllKeys().size();
+		Set<String> bookNames = PaperUtils.getAllPaperBookNames();
+		return count(bookNames.toArray(new String[0]));
 	}
 
 	@Override
 	public int count(@NotNull String[] sessions) {
 		int count = 0;
 		for (String session : sessions) {
-			count += Paper.book(session).getAllKeys().size();
+			count += getBook(session).getAllKeys().size();
 		}
 		return count;
 	}
 
 	@Override
 	public int count(@NotNull String session, @NotNull String keyPrefix) {
-		List<String> allKeys = Paper.book(session).getAllKeys();
+		List<String> allKeys = getBook(session).getAllKeys();
 
 		int count = 0;
 		for (String key : allKeys) {
@@ -56,7 +60,8 @@ public class PaperDbStorage implements Storage {
 
 	@Override
 	public synchronized void clear() {
-		Paper.book().destroy();
+		Set<String> bookNames = PaperUtils.getAllPaperBookNames();
+		clear(bookNames.toArray(new String[0]));
 	}
 
 	@Override
@@ -70,7 +75,9 @@ public class PaperDbStorage implements Storage {
 	public synchronized void clear(@Nullable String session, @NotNull String keyPrefix) {
 		List<String> keys = getBook(session).getAllKeys();
 		for (String key : keys) {
-			getBook(session).delete(key);
+			if (key.startsWith(keyPrefix)) {
+				getBook(session).delete(key);
+			}
 		}
 	}
 
@@ -102,7 +109,7 @@ public class PaperDbStorage implements Storage {
 	}
 
 	protected Book getBook(@Nullable String session) {
-		return session != null && !session.isEmpty() ? Paper.book(session) : Paper.book();
+		return session != null && !session.isEmpty() && !DEFAULT_PAPER_BOOK.equals(session) ? Paper.book(session) : Paper.book();
 	}
 
 }

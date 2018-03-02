@@ -1,10 +1,10 @@
 package fr.beapp.cache.storage;
 
-public class InMemoryStorageTest extends BaseStorageTest {
+public class InMemoryWeekStorageTest extends BaseStorageTest {
 
 	@Override
 	protected Storage buildStorage() throws Exception {
-		return new InMemoryStorage(false);
+		return new InMemoryStorage(true);
 	}
 
 }
