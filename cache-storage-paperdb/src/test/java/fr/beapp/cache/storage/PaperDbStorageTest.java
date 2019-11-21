@@ -4,12 +4,15 @@ import android.content.Context;
 
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.shadows.ShadowApplication;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
+import org.robolectric.shadow.api.Shadow;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 
+import androidx.test.core.app.ApplicationProvider;
 import io.paperdb.Book;
 import io.paperdb.Paper;
 
@@ -18,7 +21,7 @@ public class PaperDbStorageTest extends BaseStorageTest {
 
 	@Override
 	protected Storage buildStorage() throws Exception {
-		Context context = ShadowApplication.getInstance().getApplicationContext();
+		Context context = Shadow.extract(ApplicationProvider.getApplicationContext());
 
 		purgeFolder(context.getFilesDir());
 

@@ -4,14 +4,14 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.2'
+        classpath 'com.android.tools.build:gradle:3.5.2'
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969'
     }
 }
 
 ext {
     libraryGroupId = 'fr.beapp.cache'
-    libraryVersion = '2.4'
+    libraryVersion = '2.5'
 
     siteUrl = 'https://bitbucket.org/beappers/beapp.cache.andro'
     gitUrl = 'git@bitbucket.org:beappers/beapp.cache.andro.git'
