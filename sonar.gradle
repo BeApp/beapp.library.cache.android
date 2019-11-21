@@ -10,7 +10,7 @@ sonarqube {
         property 'sonar.sourceEncoding', 'UTF-8'
         property 'sonar.exclusions', '**/*Test.java'
 
-        def appProject = project(':cache')
+        def appProject = project(':cache-core')
         def appProjectBuildDir = appProject.buildDir
         property 'sonar.junit.reportsPath', "$appProjectBuildDir/test-results/debug"
     }
