@@ -27,20 +27,18 @@ rxCache.fromKey("remotedata_%d", 1)
 
 # Installation
 
-Add Beapp's repository in your project's repositories list, then add the dependency.
+Add jcenter's repository in your project's repositories list, then add the dependency.
 
 ```groovy
 repositories {
     jcenter()
-    // ...
-    maven { url 'http://repository.beapp.fr/libs-release-local' }
 }
 
 dependencies {
-    compile 'fr.beapp.cache:cache-core:<cacheVersion>'
+    implementation 'fr.beapp.cache:cache-core:<latest-version>'
 
     // Pick one of the following
-    compile 'fr.beapp.cache:cache-storage-snappydb:<cacheVersion>'
-    compile 'fr.beapp.cache:cache-storage-paperdb:<cacheVersion>'
+    implementation 'fr.beapp.cache:cache-storage-snappydb:<latest-version>'
+    implementation 'fr.beapp.cache:cache-storage-paperdb:<latest-version>'
 }
 ```
