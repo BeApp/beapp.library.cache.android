@@ -14,7 +14,7 @@ project.ext {
     userOrg = 'beapp'
     repoName = 'beapp-maven-oss'
     groupId = 'fr.beapp.cache'
-    publishVersion = '2.5'
+    publishVersion = '2.6'
 
     website = 'https://github.com/beapp/beapp.library.cache.android'
 
