@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -18,18 +20,29 @@ android {
     }
 }
 
-ext {
-    libraryName = 'Beapp Cache - Storage PaperDb'
-    libraryArtifactId = 'cache-storage-paperdb'
-    libraryPackaging = 'jar'
+publish {
+    userOrg = project.userOrg
+    repoName = project.repoName
+    groupId = project.groupId
+    artifactId = 'cache-storage-paperdb'
+    publishVersion = project.publishVersion
 
-    libraryDescription = 'A PaperDb storage implementation for cache library'
+    uploadName = 'beapp-cache-storage-paperdb'
+    desc = 'A PaperDb storage implementation for cache library'
+
+    website = project.website
+
+    licences = project.licences
+
+    bintrayUser = project.bintrayUser
+    bintrayKey = project.bintrayKey
+
+    dryRun = true
 }
 
 repositories {
     google()
     jcenter()
-    maven { url 'http://repository.beapp.fr/libs-release-local' }
 }
 
 dependencies {
@@ -44,4 +57,3 @@ dependencies {
 }
 
 apply from: '../sonar.gradle'
-apply from: 'https://bitbucket.org/beappers/beapp.gradle/raw/master/publish-library.gradle'

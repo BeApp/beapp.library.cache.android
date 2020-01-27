@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -13,12 +15,24 @@ android {
     }
 }
 
-ext {
-    libraryName = 'Beapp Cache'
-    libraryArtifactId = 'cache-core'
-    libraryPackaging = 'jar'
+publish {
+    userOrg = project.userOrg
+    repoName = project.repoName
+    groupId = project.groupId
+    artifactId = 'cache-core'
+    publishVersion = project.publishVersion
 
-    libraryDescription = 'A cache library based on RxJava'
+    uploadName = 'beapp-cache'
+    desc = 'A cache library based on RxJava'
+
+    website = project.website
+
+    licences = project.licences
+
+    bintrayUser = project.bintrayUser
+    bintrayKey = project.bintrayKey
+
+    dryRun = true
 }
 
 dependencies {
@@ -29,4 +43,3 @@ dependencies {
 }
 
 apply from: '../sonar.gradle'
-apply from: 'https://bitbucket.org/beappers/beapp.gradle/raw/master/publish-library.gradle'

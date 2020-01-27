@@ -5,29 +5,28 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.2'
+        classpath 'com.novoda:bintray-release:0.9.2'
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969'
     }
 }
 
-ext {
-    libraryGroupId = 'fr.beapp.cache'
-    libraryVersion = '2.5'
+project.ext {
+    userOrg = 'beapp'
+    repoName = 'beapp-maven-oss'
+    groupId = 'fr.beapp.cache'
+    publishVersion = '2.6'
 
-    siteUrl = 'https://bitbucket.org/beappers/beapp.cache.andro'
-    gitUrl = 'git@bitbucket.org:beappers/beapp.cache.andro.git'
+    website = 'https://github.com/beapp/beapp.library.cache.android'
 
-    developerId = 'dvilleneuve'
-    developerName = 'Damien Villeneuve'
-    developerEmail = 'd.villeneuve@beapp.fr'
+    licences = ["Apache-2.0"]
 
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
+    bintrayUser = findProperty("beapp_bintray_user")
+    bintrayKey = findProperty("beapp_bintray_key")
 }
 
 allprojects {
-    group = libraryGroupId
-    version = libraryVersion
+    group = groupId
+    version = publishVersion
 
     repositories {
         jcenter()
