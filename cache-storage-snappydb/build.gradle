@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -13,28 +15,38 @@ android {
     }
 }
 
-ext {
-    libraryName = 'Beapp Cache - Storage Snappydb'
-    libraryArtifactId = 'cache-storage-snappydb'
-    libraryPackaging = 'jar'
+publish {
+    userOrg = project.userOrg
+    repoName = project.repoName
+    groupId = project.groupId
+    artifactId = 'cache-storage-snappydb'
+    publishVersion = project.publishVersion
 
-    libraryDescription = 'A Snappydb storage implementation for cache library'
+    uploadName = 'beapp-cache-storage-snappydb'
+    desc = 'A Snappydb storage implementation for cache library'
+
+    website = project.website
+
+    licences = project.licences
+
+    bintrayUser = project.bintrayUser
+    bintrayKey = project.bintrayKey
+
+    dryRun = true
 }
 
 repositories {
     google()
     jcenter()
-    maven { url 'http://repository.beapp.fr/libs-release-local' }
 }
 
 dependencies {
     api project(':cache-core')
 
-    implementation 'fr.beapp.logger:logger:1.3'
+    implementation 'fr.beapp.logger:logger:1.5'
     implementation 'com.snappydb:snappydb-lib:0.5.2'
 
     testImplementation 'junit:junit:4.12'
 }
 
 apply from: '../sonar.gradle'
-apply from: 'https://bitbucket.org/beappers/beapp.gradle/raw/master/publish-library.gradle'
