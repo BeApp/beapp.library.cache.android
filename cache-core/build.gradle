@@ -15,6 +15,11 @@ android {
     }
 }
 
+ext {
+    libraryName = 'Beapp Cache'
+    libraryDescription = 'A cache library based on RxJava'
+}
+
 publish {
     userOrg = project.userOrg
     repoName = project.repoName
@@ -23,7 +28,7 @@ publish {
     publishVersion = project.publishVersion
 
     uploadName = 'beapp-cache'
-    desc = 'A cache library based on RxJava'
+    desc = libraryDescription
 
     website = project.website
 

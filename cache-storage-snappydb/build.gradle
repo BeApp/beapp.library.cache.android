@@ -15,6 +15,11 @@ android {
     }
 }
 
+ext {
+    libraryName = 'Beapp Cache - Storage Snappydb'
+    libraryDescription = 'A Snappydb storage implementation for cache library'
+}
+
 publish {
     userOrg = project.userOrg
     repoName = project.repoName
@@ -23,7 +28,7 @@ publish {
     publishVersion = project.publishVersion
 
     uploadName = 'beapp-cache-storage-snappydb'
-    desc = 'A Snappydb storage implementation for cache library'
+    desc = libraryDescription
 
     website = project.website
 

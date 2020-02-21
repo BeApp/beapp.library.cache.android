@@ -20,6 +20,11 @@ android {
     }
 }
 
+ext {
+    libraryName = 'Beapp Cache - Storage PaperDb'
+    libraryDescription = 'A PaperDb storage implementation for cache library'
+}
+
 publish {
     userOrg = project.userOrg
     repoName = project.repoName
@@ -28,7 +33,7 @@ publish {
     publishVersion = project.publishVersion
 
     uploadName = 'beapp-cache-storage-paperdb'
-    desc = 'A PaperDb storage implementation for cache library'
+    desc = libraryDescription
 
     website = project.website
 
